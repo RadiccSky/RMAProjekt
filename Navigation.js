@@ -4,6 +4,7 @@ import { NavigationContainer } from "@react-navigation/native";
 import LoggedOutView from "./components/LoggedOutView";
 import LoggedInView from "./components/LoggedInView";
 import RegistrationView from "./components/RegistrationView";
+import HomePage from "./components/HomePage";
 import { Routes } from "./components/Routes";
 
 
@@ -14,11 +15,12 @@ export default function Navigation() {
     <NavigationContainer>
       <Stack.Navigator initialRouteName={Routes.LoggedOutView}>
         <Stack.Screen name={Routes.LoggedOutView}
-        options={{ title: "Prijava" }}>
+        options={{ title: "Prijava" }}
+        >
           {({ navigation }) => (
             <LoggedOutView
               onNavigateToRegister={() => navigation.navigate(Routes.RegistrationView)}
-              onLoginSuccess={() => navigation.navigate(Routes.LoggedInView)}
+              onLoginSuccess={() => navigation.navigate(Routes.HomePage)}
             />
           )}
         </Stack.Screen>
@@ -37,6 +39,12 @@ export default function Navigation() {
             <LoggedInView onLogout={() => navigation.navigate(Routes.LoggedOutView)} />
           )}
         </Stack.Screen>
+        <Stack.Screen name={Routes.HomePage}
+         options={{title: "Profil"}}>
+          {({navigation }) => 
+            <HomePage  />
+          }
+</Stack.Screen>
       </Stack.Navigator>
     </NavigationContainer>
   );

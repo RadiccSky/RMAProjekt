@@ -42,7 +42,9 @@ export default function LoggedInView({ onLogout }) {
   const handleSaveProfile = async () => {
     try {
       const userId = auth.currentUser.uid;
+      console.log(profile);
       await setDoc(doc(firestore, "users", userId), profile);
+      console.log("Profil spremljen u Firestore."); 
       Alert.alert("Profil spremljen", "Vaš profil je uspješno spremljen!");
     } catch (error) {
       console.error("Greška pri spremanju profila: ", error);
