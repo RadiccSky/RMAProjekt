@@ -1,17 +1,15 @@
-import React from 'react';
+import React, {useContext} from 'react';
 import { View, Text, StyleSheet } from 'react-native';
+import { AuthContext } from '../AuthContext';
+
 
 export default function MyProfile() {
-  const korisnik = {
-    ime: 'Anđela Marinović',
-    email: 'andjela.marinovic@example.com',
-  };
+  const { user } = useContext(AuthContext);
 
   return (
     <View style={styles.container}>
       <Text style={styles.heading}>Korisnički Profil</Text>
-      <Text style={styles.info}>Ime: {korisnik.ime}</Text>
-      <Text style={styles.info}>Email: {korisnik.email}</Text>
+      <Text style={styles.info}>Email: {user.email}</Text>
     </View>
   );
 }

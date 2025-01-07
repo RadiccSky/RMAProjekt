@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext } from "react";
-import { View, Text, StyleSheet, Alert } from "react-native";
+import { View, Text, StyleSheet} from "react-native";
 import { doc, setDoc, getDoc } from "firebase/firestore";
 import { auth, firestore } from "../firebaseConfig";
 import { AuthContext } from "../AuthContext";
@@ -30,7 +30,7 @@ export default function LoggedInView({ onLogout }) {
         }
       } catch (error) {
         console.error("Error fetching profile: ", error);
-        Alert.alert("Greška", "Došlo je do greške pri učitavanju vašeg profila.");
+        alert("Greška. Došlo je do greške pri učitavanju vašeg profila.");
       } finally {
         setLoading(false);
       }
@@ -45,10 +45,10 @@ export default function LoggedInView({ onLogout }) {
       console.log(profile);
       await setDoc(doc(firestore, "users", userId), profile);
       console.log("Profil spremljen u Firestore."); 
-      Alert.alert("Profil spremljen", "Vaš profil je uspješno spremljen!");
+      alert("Vaš profil je uspješno spremljen!");
     } catch (error) {
       console.error("Greška pri spremanju profila: ", error);
-      Alert.alert("Greška", "Došlo je do greške pri spremanju vašeg profila.");
+      alert("Greška. Došlo je do greške pri spremanju vašeg profila.");
     }
   };
 

@@ -3,13 +3,13 @@ import { View, Text, StyleSheet } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import LoginInput from "./ui/LoginInput";
 import LoginButton from "./ui/LoginButton";
-import ErrorMessage from "./ui/ErrorMessage";
 import { AuthContext } from "../AuthContext";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from "../firebaseConfig";
 import CoinyText from "./ui/CoinyText";
 import PasswordInput from "./ui/PasswordInput";
 import RememberMe from "./ui/RememberMe";
+import ErrorMessage from "./ui/ErrorMessage";
 
 export default function LoggedOutView({ onNavigateToRegister, onLoginSuccess }) {
   const { login } = useContext(AuthContext);

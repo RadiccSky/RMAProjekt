@@ -25,7 +25,7 @@ export default function PasswordInput({ placeholder, value, onChangeText }) {
                     style={styles.iconContainer}
                 >
                     <Ionicons
-                        name={isPasswordVisible ? "eye-off" : "eye"} // Ikona oka za prikazivanje lozinke
+                        name={isPasswordVisible ? "eye" : "eye-off"} // Ikona oka za prikazivanje lozinke
                         size={24}
                         color="gray"
                     />
@@ -39,7 +39,7 @@ const styles = StyleSheet.create({
     container: {
         width: "100%", 
         alignItems: "center", 
-        justifyContent: "center",
+
     },
     inputContainer: {
         flexDirection: "row",  // Postavljanje inputa i ikone u red

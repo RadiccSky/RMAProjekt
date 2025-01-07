@@ -8,10 +8,15 @@ export const AuthContext = createContext();
 export const AuthProvider = ({ children }) => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [user, setUser] = useState(null);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       if (user) {
+        const userData = {
+          email: user.email,
+        };
+        setUser(userData);
         setIsLoggedIn(true);
       } else {
         const rememberedEmail = await AsyncStorage.getItem("rememberedEmail");
@@ -56,6 +61,7 @@ export const AuthProvider = ({ children }) => {
     try {
       await signOut(auth);
       setIsLoggedIn(false);
+      setUser(null); 
       await AsyncStorage.removeItem("rememberedEmail");
       await AsyncStorage.removeItem("rememberedPassword");
     } catch (error) {
@@ -68,7 +74,7 @@ export const AuthProvider = ({ children }) => {
   }
 
   return (
-    <AuthContext.Provider value={{ login, logout, isLoggedIn }}>
+    <AuthContext.Provider value={{ login, logout, isLoggedIn , user }}>
       {children}
     </AuthContext.Provider>
   );
