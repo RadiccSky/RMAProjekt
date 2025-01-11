@@ -11,14 +11,16 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
 
   useEffect(() => {
+    console.log("Auth state initialization started...");
+
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
+      console.log("Auth state changed:", user);
+
       if (user) {
-        const userData = {
-          email: user.email,
-        };
-        setUser(userData);
         setIsLoggedIn(true);
+        setUser({ email: user.email });
       } else {
+        console.log("No user found, checking remembered credentials...");
         const rememberedEmail = await AsyncStorage.getItem("rememberedEmail");
         const rememberedPassword = await AsyncStorage.getItem("rememberedPassword");
 
@@ -27,7 +29,7 @@ export const AuthProvider = ({ children }) => {
             await signInWithEmailAndPassword(auth, rememberedEmail, rememberedPassword);
             setIsLoggedIn(true);
           } catch (error) {
-            console.error("Auto-login failed: ", error.message);
+            console.error("Auto-login failed:", error.message);
             setIsLoggedIn(false);
           }
         } else {
@@ -53,7 +55,7 @@ export const AuthProvider = ({ children }) => {
         await AsyncStorage.removeItem("rememberedPassword");
       }
     } catch (error) {
-      console.error("Login error: ", error.message);
+      console.error("Login error:", error.message);
     }
   };
 
@@ -65,18 +67,18 @@ export const AuthProvider = ({ children }) => {
       await AsyncStorage.removeItem("rememberedEmail");
       await AsyncStorage.removeItem("rememberedPassword");
     } catch (error) {
-      console.error("Logout error: ", error.message);
+      console.error("Logout error:", error.message);
     }
   };
 
   if (loading) {
-    return null; // Možete dodati loading indikator ovdje
+    console.log("Loading authentication state..."); // Debugging log
+    return null; // Dodaj loader ovdje ako želiš
   }
 
   return (
-    <AuthContext.Provider value={{ login, logout, isLoggedIn , user }}>
+    <AuthContext.Provider value={{ login, logout, isLoggedIn, user }}>
       {children}
     </AuthContext.Provider>
   );
 };
-
