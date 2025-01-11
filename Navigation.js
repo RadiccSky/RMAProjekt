@@ -10,7 +10,14 @@ import { AuthContext } from "./AuthContext";
 const Stack = createStackNavigator();
 
 export default function Navigation() {
-  const { isLoggedIn } = useContext(AuthContext);
+  const { isLoggedIn, loading } = useContext(AuthContext);
+
+  console.log("Navigation rendering with isLoggedIn:", isLoggedIn);
+
+  if (loading) {
+    console.log("Waiting for authentication to load...");
+    return null; // Možete dodati loader ovdje
+  }
 
   return (
     <NavigationContainer>
@@ -19,7 +26,7 @@ export default function Navigation() {
         screenOptions={{ headerShown: false }}
       >
         {/* Logged-out flow */}
-        {!isLoggedIn && (
+        {!isLoggedIn ? (
           <>
             <Stack.Screen name={Routes.LoggedOutView}>
               {({ navigation }) => (
@@ -44,13 +51,11 @@ export default function Navigation() {
               )}
             </Stack.Screen>
           </>
-        )}
-
-        {/* Logged-in flow */}
-        {isLoggedIn && (
+        ) : (
           <Stack.Screen name={Routes.MainView} component={MainView} />
         )}
       </Stack.Navigator>
     </NavigationContainer>
   );
 }
+
