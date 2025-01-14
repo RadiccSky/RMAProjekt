@@ -1,8 +1,6 @@
-
 export const Routes = {
-    LoggedOutView: "LoggedOutView",
-    LoggedInView: "LoggedInView",
-    RegistrationView: "RegistrationView",
-    MainView: "MainView"
-  };
-  
+  LoggedOutView: "LoggedOutView",
+  LoggedInView: "LoggedInView",
+  RegistrationView: "RegistrationView",
+  MainView: "MainView",
+};

@@ -4,6 +4,8 @@ import {
   TouchableOpacity, Animated, Easing
 } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
+import { doc, setDoc } from "firebase/firestore";
+import { firestore, auth } from '../../firebaseConfig'; // Ensure firebaseConfig is correctly set up
 
 const randomArrFunction = (arr) => {
   for (let i = arr.length - 1; i > 0; i--) {
@@ -25,7 +27,7 @@ const gameCardsFunction = () => {
   }));
 };
 
-const App = () => {
+const Memori = () => {
   const [cards, setCards] = useState(gameCardsFunction());
   const [selectedCards, setSelectedCards] = useState([]);
   const [matches, setMatches] = useState(0);
@@ -50,6 +52,7 @@ const App = () => {
             geekWinGameFunction();
             setGameWon(true);
             clearInterval(intervalId); // Stop the timer once the game is won
+            saveTimeScore(timer); // Save the time score to Firestore
           }
         } else {
           setTimeout(() => {
@@ -71,6 +74,19 @@ const App = () => {
       easing: Easing.linear,
       useNativeDriver: false,
     }).start();
+  };
+
+  const saveTimeScore = async (timeScore) => {
+    try {
+      const userId = auth.currentUser.uid; // Get the current user's ID
+      const docRef = doc(firestore, "users", userId); // Reference to the user's document
+
+      // Update the document with the new time score
+      await setDoc(docRef, { memoriTimeScore: timeScore }, { merge: true });
+      console.log("Time score saved to Firestore.");
+    } catch (error) {
+      console.error("Error saving time score: ", error);
+    }
   };
 
   useEffect(() => {
@@ -207,4 +223,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default App;
+export default Memori;

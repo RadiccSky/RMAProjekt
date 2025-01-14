@@ -1,27 +1,29 @@
-
 import React, { useState, useEffect } from 'react';
 import { Alert } from 'react-native';
+import { doc, setDoc, getDoc } from "firebase/firestore";
+import { firestore, auth } from '../../firebaseConfig'; // Ensure firebaseConfig is correctly set up
+import { useNavigation } from '@react-navigation/native'; // Add this line for navigation
 
 const BOARD_SIZE = 4;
 
-
 const GameLogic = () => {
-    const [score, setScore] = useState(0);  // Premjestiti unutra funkciju
+    const navigation = useNavigation(); // Initialize navigation
+    const [score, setScore] = useState(0);  
     const [board, setBoard] = useState(Array.from({ length: BOARD_SIZE },
         () => Array(BOARD_SIZE).fill(0)));
 
     const resetScore = () => {
         setScore(0);
     };
-        const initializeGame = () => {
-            resetScore(); // Resetuj bodove
-            const newBoard = Array.from({ length: BOARD_SIZE },
-                () => Array(BOARD_SIZE).fill(0));
-            addNewTile(newBoard);
-            addNewTile(newBoard);
-            setBoard(newBoard);
-        };
-        
+
+    const initializeGame = () => {
+        resetScore(); // Reset score
+        const newBoard = Array.from({ length: BOARD_SIZE },
+            () => Array(BOARD_SIZE).fill(0));
+        addNewTile(newBoard);
+        addNewTile(newBoard);
+        setBoard(newBoard);
+    };
 
     const addNewTile = (newBoard) => {
         const emptyTiles = [];
@@ -32,18 +34,42 @@ const GameLogic = () => {
                 }
             }
         }
-    
+
         if (emptyTiles.length > 0) {
             const { row, col } = emptyTiles[Math.floor(Math.random() * emptyTiles.length)];
-            newBoard[row][col] = Math.random() < 0.9 ? 2 : 4; // 90% za 2, 10% za 4
+            newBoard[row][col] = Math.random() < 0.9 ? 2 : 4; // 90% for 2, 10% for 4
         }
     };
-    
+
+    const saveScore = async (score) => {
+        try {
+            const userId = auth.currentUser.uid; // Get the current user's ID
+            const docRef = doc(firestore, "users", userId); // Reference to the user's document
+            const docSnap = await getDoc(docRef); // Fetch the user's document
+
+            if (docSnap.exists()) {
+                const userData = docSnap.data();
+                const highestScore = userData.highestScore || 0;
+
+                // Update the highest score if the current score is greater
+                if (score > highestScore) {
+                    await setDoc(docRef, { highestScore: score }, { merge: true });
+                    console.log("New highest score saved to Firestore.");
+                } else {
+                    console.log("Score saved to Firestore.");
+                }
+            } else {
+                console.log("User profile not found.");
+            }
+        } catch (error) {
+            console.error("Error saving score: ", error);
+        }
+    };
 
     const handleSwipe = (direction) => {
-        const newBoard = JSON.parse(JSON.stringify(board)); // Duboka kopija ploče
+        const newBoard = JSON.parse(JSON.stringify(board)); // Deep copy of the board
         let moved = false;
-    
+
         switch (direction) {
             case 'UP':
                 moved = moveUp(newBoard);
@@ -60,47 +86,47 @@ const GameLogic = () => {
             default:
                 break;
         }
-    
+
         if (moved) {
-            addNewTile(newBoard); // Dodaj novu pločicu samo ako je potez validan
+            addNewTile(newBoard); // Add a new tile only if the move is valid
             setBoard(newBoard);
         }
-    
+
         if (isGameOver(newBoard)) {
             Alert.alert('Game Over', 'No more moves left!', [{ text: 'Restart', onPress: initializeGame }]);
+            saveScore(score);  // Save the score when the game ends
         }
     };
-    
 
     const moveUp = (newBoard) => {
         let moved = false;
-    
+
         for (let col = 0; col < BOARD_SIZE; col++) {
             let compressedCol = [];
             for (let row = 0; row < BOARD_SIZE; row++) {
                 if (newBoard[row][col] !== 0) {
-                    compressedCol.push(newBoard[row][col]); // Ukloni nule
+                    compressedCol.push(newBoard[row][col]); // Remove zeros
                 }
             }
             let mergedCol = [];
-    
+
             for (let i = 0; i < compressedCol.length; i++) {
                 if (compressedCol[i] === compressedCol[i + 1]) {
-                    const newValue = compressedCol[i] * 2; // Spoji iste vrijednosti
-                    mergedCol.push(newValue); // Dodaj na kraj
-                    setScore((prevScore) => prevScore + newValue); // Dodaj bodove
-                    i++; // Preskoči sljedeću pločicu
+                    const newValue = compressedCol[i] * 2; // Merge same values
+                    mergedCol.push(newValue); // Add to the end
+                    setScore((prevScore) => prevScore + newValue); // Add score
+                    i++; // Skip the next tile
                     moved = true;
                 } else {
                     mergedCol.push(compressedCol[i]);
                 }
             }
-    
-            // Dodaj nule na kraj
+
+            // Add zeros to the end
             while (mergedCol.length < BOARD_SIZE) {
                 mergedCol.push(0);
             }
-    
+
             for (let row = 0; row < BOARD_SIZE; row++) {
                 if (newBoard[row][col] !== mergedCol[row]) {
                     newBoard[row][col] = mergedCol[row];
@@ -108,41 +134,39 @@ const GameLogic = () => {
                 }
             }
         }
-    
+
         return moved;
     };
-    
-    
 
     const moveDown = (newBoard) => {
         let moved = false;
-    
+
         for (let col = 0; col < BOARD_SIZE; col++) {
             let compressedCol = [];
             for (let row = 0; row < BOARD_SIZE; row++) {
                 if (newBoard[row][col] !== 0) {
-                    compressedCol.push(newBoard[row][col]); // Ukloni nule
+                    compressedCol.push(newBoard[row][col]); // Remove zeros
                 }
             }
             let mergedCol = [];
-    
+
             for (let i = compressedCol.length - 1; i >= 0; i--) {
                 if (compressedCol[i] === compressedCol[i - 1]) {
-                    const newValue = compressedCol[i] * 2; // Spoji iste vrijednosti
-                    mergedCol.unshift(newValue); // Dodaj na početak
-                    setScore((prevScore) => prevScore + newValue); // Dodaj bodove
-                    i--; // Preskoči sljedeću pločicu
+                    const newValue = compressedCol[i] * 2; // Merge same values
+                    mergedCol.unshift(newValue); // Add to the beginning
+                    setScore((prevScore) => prevScore + newValue); // Add score
+                    i--; // Skip the next tile
                     moved = true;
                 } else {
                     mergedCol.unshift(compressedCol[i]);
                 }
             }
-    
-            // Dodaj nule na početak
+
+            // Add zeros to the beginning
             while (mergedCol.length < BOARD_SIZE) {
                 mergedCol.unshift(0);
             }
-    
+
             for (let row = 0; row < BOARD_SIZE; row++) {
                 if (newBoard[row][col] !== mergedCol[row]) {
                     newBoard[row][col] = mergedCol[row];
@@ -150,82 +174,78 @@ const GameLogic = () => {
                 }
             }
         }
-    
+
         return moved;
     };
-    
-    
+
     const moveLeft = (newBoard) => {
         let moved = false;
-    
+
         for (let row = 0; row < BOARD_SIZE; row++) {
-            let compressedRow = newBoard[row].filter((val) => val !== 0); // Ukloni nule
+            let compressedRow = newBoard[row].filter((val) => val !== 0); // Remove zeros
             let mergedRow = [];
-    
+
             for (let i = 0; i < compressedRow.length; i++) {
                 if (compressedRow[i] === compressedRow[i + 1]) {
-                    const newValue = compressedRow[i] * 2; // Spoji iste vrijednosti
+                    const newValue = compressedRow[i] * 2; // Merge same values
                     mergedRow.push(newValue);
-                    setScore((prevScore) => prevScore + newValue); // Dodaj bodove
-                    i++; // Preskoči sljedeću pločicu
+                    setScore((prevScore) => prevScore + newValue); // Add score
+                    i++; // Skip the next tile
                     moved = true;
                 } else {
                     mergedRow.push(compressedRow[i]);
                 }
             }
-    
-            // Dodaj nule na kraj
+
+            // Add zeros to the end
             while (mergedRow.length < BOARD_SIZE) {
                 mergedRow.push(0);
             }
-    
+
             if (!arraysEqual(newBoard[row], mergedRow)) {
                 newBoard[row] = mergedRow;
                 moved = true;
             }
         }
-    
+
         return moved;
     };
-    
-    
+
     const moveRight = (newBoard) => {
         let moved = false;
-    
+
         for (let row = 0; row < BOARD_SIZE; row++) {
-            let compressedRow = newBoard[row].filter((val) => val !== 0); // Ukloni nule
+            let compressedRow = newBoard[row].filter((val) => val !== 0); // Remove zeros
             let mergedRow = [];
-    
+
             for (let i = compressedRow.length - 1; i >= 0; i--) {
                 if (compressedRow[i] === compressedRow[i - 1]) {
-                    const newValue = compressedRow[i] * 2; // Spoji iste vrijednosti
-                    mergedRow.unshift(newValue); // Dodaj na početak
-                    setScore((prevScore) => prevScore + newValue); // Dodaj bodove
-                    i--; // Preskoči sljedeću pločicu
+                    const newValue = compressedRow[i] * 2; // Merge same values
+                    mergedRow.unshift(newValue); // Add to the beginning
+                    setScore((prevScore) => prevScore + newValue); // Add score
+                    i--; // Skip the next tile
                     moved = true;
                 } else {
                     mergedRow.unshift(compressedRow[i]);
                 }
             }
-    
-            // Dodaj nule na početak
+
+            // Add zeros to the beginning
             while (mergedRow.length < BOARD_SIZE) {
                 mergedRow.unshift(0);
             }
-    
+
             if (!arraysEqual(newBoard[row], mergedRow)) {
                 newBoard[row] = mergedRow;
                 moved = true;
             }
         }
-    
+
         return moved;
     };
-    
-    
 
     const isGameOver = (newBoard) => {
-        // Check if there are any empty tiles or valid moves left
+        // Check if all moves are blocked or there are no empty tiles
         for (let row = 0; row < BOARD_SIZE; row++) {
             for (let col = 0; col < BOARD_SIZE; col++) {
                 if (newBoard[row][col] === 0) {
@@ -243,7 +263,14 @@ const GameLogic = () => {
     };
 
     useEffect(() => {
-        initializeGame();
+        if (auth.currentUser) {
+            initializeGame(); // Initialize the game if the user is logged in
+        } else {
+            console.log("User is not logged in.");
+            Alert.alert("Log In", "You must be logged in to play the game.", [
+                { text: "Log In", onPress: () => navigation.navigate('Login') } // Redirect to login screen
+            ]);
+        }
     }, []);
 
     return {
@@ -253,6 +280,7 @@ const GameLogic = () => {
         handleSwipe,
     };
 };
+
 const arraysEqual = (a, b) => JSON.stringify(a) === JSON.stringify(b);
 
 export default GameLogic;

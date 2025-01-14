@@ -45,7 +45,6 @@ export default function MainView() {
         component={Games}
         options={{ title: "Games" }}
       />
-      {/* Add the Logout button as a drawer item */}
       <Drawer.Screen
         name="Logout"
         component={LogoutButton}

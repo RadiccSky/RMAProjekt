@@ -1,8 +1,9 @@
 import React, { useState, useContext } from "react";
 import { View, StyleSheet, Text } from "react-native";
-import { auth } from "../firebaseConfig";
+import { auth, firestore } from "../firebaseConfig";
 import { AuthContext } from "../AuthContext";
 import { createUserWithEmailAndPassword } from "firebase/auth";
+import { doc, setDoc } from "firebase/firestore";
 import LoginInput from "./ui/LoginInput";
 import LoginButton from "./ui/LoginButton";
 import ErrorMessage from "./ui/ErrorMessage";
@@ -16,28 +17,52 @@ export default function RegistrationView({ onNavigateToLogin, onRegistrationSucc
   const [errorMsg, setErrorMsg] = useState("");
 
   const handleRegistration = async () => {
+    // Provjera da li se lozinke podudaraju
     if (passw !== confirmPassw) {
       setErrorMsg("Lozinke se ne podudaraju!");
       return;
     }
+    
+    // Regex za provjeru ispravnog email formata
     const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
   
+    // Provjera da li su svi podaci uneseni
     if (!email || !passw) {
       setErrorMsg("Unesite sve podatke.");
       return;
     }
 
+    // Provjera da li je email u ispravnom formatu
     if (!emailRegex.test(email)) {
       setErrorMsg("Unesite važeću email adresu.");
       return;
     }
+
     try {
-      await createUserWithEmailAndPassword(auth, email, passw);
-      login();
-      onRegistrationSuccess();
+      // Kreiranje korisničkog računa s emailom i lozinkom
+      const userCredential = await createUserWithEmailAndPassword(auth, email, passw);
+      const user = userCredential.user;
+
+      // Create a user document in Firestore
+      await setDoc(doc(firestore, 'users', user.uid), {
+        email: user.email,
+        scores: [],
+      });
+
+      login();  // Ažuriranje prijavljenog korisnika u kontekstu
+      onRegistrationSuccess();  // Pozivanje funkcije za uspješnu registraciju
     } catch (error) {
-      console.error("Error during registration: ", error);
-      setErrorMsg(error.message);
+      // Obrada grešaka koje dolaze iz Firebase-a
+      console.error("Greška pri registraciji: ", error);
+      if (error.code === 'auth/email-already-in-use') {
+        setErrorMsg("Email je već registriran.");
+      } else if (error.code === 'auth/invalid-email') {
+        setErrorMsg("Unesite valjan email.");
+      } else if (error.code === 'auth/weak-password') {
+        setErrorMsg("Lozinka je preslaba, odaberite jaču lozinku.");
+      } else {
+        setErrorMsg("Došlo je do pogreške, pokušajte ponovno.");
+      }
     }
   };
 
@@ -86,5 +111,3 @@ const styles = StyleSheet.create({
     color: "#C30E59",
   },
 });
-
-

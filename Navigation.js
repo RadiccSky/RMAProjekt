@@ -3,7 +3,7 @@ import { createStackNavigator } from "@react-navigation/stack";
 import { NavigationContainer } from "@react-navigation/native";
 import LoggedOutView from "./components/LoggedOutView";
 import RegistrationView from "./components/RegistrationView";
-import MainView from "./components/MainView";
+import MainView from "./components/MainView"; // Ensure this import is correct
 import { Routes } from "./components/Routes";
 import { AuthContext } from "./AuthContext";
 
@@ -12,11 +12,8 @@ const Stack = createStackNavigator();
 export default function Navigation() {
   const { isLoggedIn, loading } = useContext(AuthContext);
 
-  console.log("Navigation rendering with isLoggedIn:", isLoggedIn);
-
   if (loading) {
-    console.log("Waiting for authentication to load...");
-    return null; // Možete dodati loader ovdje
+    return null; // You can add a loader here
   }
 
   return (
@@ -25,7 +22,6 @@ export default function Navigation() {
         initialRouteName={isLoggedIn ? Routes.MainView : Routes.LoggedOutView}
         screenOptions={{ headerShown: false }}
       >
-        {/* Logged-out flow */}
         {!isLoggedIn ? (
           <>
             <Stack.Screen name={Routes.LoggedOutView}>
@@ -58,4 +54,3 @@ export default function Navigation() {
     </NavigationContainer>
   );
 }
-
