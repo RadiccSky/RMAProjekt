@@ -33,8 +33,8 @@ const Memori = () => {
   const [matches, setMatches] = useState(0);
   const [winMessage, setWinMessage] = useState(new Animated.Value(0));
   const [gameWon, setGameWon] = useState(false);
-  const [timer, setTimer] = useState(0);  // New state for timer
-  const [intervalId, setIntervalId] = useState(null); // Store interval ID for clearing it later
+  const [timer, setTimer] = useState(0);  
+  const [intervalId, setIntervalId] = useState(null); 
 
   const cardClickFunction = (card) => {
     if (!gameWon && selectedCards.length < 2 && !card.isFlipped) {
@@ -51,8 +51,8 @@ const Memori = () => {
           if (matches + 1 === cards.length / 2) {
             geekWinGameFunction();
             setGameWon(true);
-            clearInterval(intervalId); // Stop the timer once the game is won
-            saveTimeScore(timer); // Save the time score to Firestore
+            clearInterval(intervalId); 
+            saveTimeScore(timer); 
           }
         } else {
           setTimeout(() => {
@@ -78,10 +78,10 @@ const Memori = () => {
 
   const saveTimeScore = async (timeScore) => {
     try {
-      const userId = auth.currentUser.uid; // Get the current user's ID
-      const docRef = doc(firestore, "users", userId); // Reference to the user's document
+      const userId = auth.currentUser.uid; 
+      const docRef = doc(firestore, "users", userId); 
 
-      // Update the document with the new time score
+    
       await setDoc(docRef, { memoriTimeScore: timeScore }, { merge: true });
       console.log("Time score saved to Firestore.");
     } catch (error) {
@@ -93,17 +93,17 @@ const Memori = () => {
     if (matches === cards.length / 2) {
       geekWinGameFunction();
       setGameWon(true);
-      clearInterval(intervalId); // Stop timer when game is won
+      clearInterval(intervalId); 
     }
   }, [matches]);
 
   useEffect(() => {
     if (!gameWon) {
       const id = setInterval(() => {
-        setTimer(prevTime => prevTime + 1); // Increase time every second
+        setTimer(prevTime => prevTime + 1); 
       }, 1000);
       setIntervalId(id);
-      return () => clearInterval(id); // Cleanup the interval on unmount or game over
+      return () => clearInterval(id); 
     }
   }, [gameWon]);
 

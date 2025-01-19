@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { Alert } from 'react-native';
 import { doc, setDoc, getDoc } from "firebase/firestore";
-import { firestore, auth } from '../../firebaseConfig'; // Ensure firebaseConfig is correctly set up
-import { useNavigation } from '@react-navigation/native'; // Add this line for navigation
+import { firestore, auth } from '../../firebaseConfig'; 
+import { useNavigation } from '@react-navigation/native'; 
 
 const BOARD_SIZE = 4;
 
 const GameLogic = () => {
-    const navigation = useNavigation(); // Initialize navigation
+    const navigation = useNavigation(); 
     const [score, setScore] = useState(0);  
     const [board, setBoard] = useState(Array.from({ length: BOARD_SIZE },
         () => Array(BOARD_SIZE).fill(0)));
@@ -17,7 +17,7 @@ const GameLogic = () => {
     };
 
     const initializeGame = () => {
-        resetScore(); // Reset score
+        resetScore(); 
         const newBoard = Array.from({ length: BOARD_SIZE },
             () => Array(BOARD_SIZE).fill(0));
         addNewTile(newBoard);
@@ -37,21 +37,21 @@ const GameLogic = () => {
 
         if (emptyTiles.length > 0) {
             const { row, col } = emptyTiles[Math.floor(Math.random() * emptyTiles.length)];
-            newBoard[row][col] = Math.random() < 0.9 ? 2 : 4; // 90% for 2, 10% for 4
+            newBoard[row][col] = Math.random() < 0.9 ? 2 : 4; 
         }
     };
 
     const saveScore = async (score) => {
         try {
-            const userId = auth.currentUser.uid; // Get the current user's ID
-            const docRef = doc(firestore, "users", userId); // Reference to the user's document
-            const docSnap = await getDoc(docRef); // Fetch the user's document
+            const userId = auth.currentUser.uid; 
+            const docRef = doc(firestore, "users", userId); 
+            const docSnap = await getDoc(docRef); 
 
             if (docSnap.exists()) {
                 const userData = docSnap.data();
                 const highestScore = userData.highestScore || 0;
 
-                // Update the highest score if the current score is greater
+                
                 if (score > highestScore) {
                     await setDoc(docRef, { highestScore: score }, { merge: true });
                     console.log("New highest score saved to Firestore.");
@@ -67,8 +67,7 @@ const GameLogic = () => {
     };
 
     const handleSwipe = (direction) => {
-        const newBoard = JSON.parse(JSON.stringify(board)); // Deep copy of the board
-        let moved = false;
+        const newBoard = JSON.parse(JSON.stringify(board)); 
 
         switch (direction) {
             case 'UP':
@@ -88,13 +87,13 @@ const GameLogic = () => {
         }
 
         if (moved) {
-            addNewTile(newBoard); // Add a new tile only if the move is valid
+            addNewTile(newBoard); 
             setBoard(newBoard);
         }
 
         if (isGameOver(newBoard)) {
             Alert.alert('Game Over', 'No more moves left!', [{ text: 'Restart', onPress: initializeGame }]);
-            saveScore(score);  // Save the score when the game ends
+            saveScore(score);  
         }
     };
 
@@ -105,17 +104,17 @@ const GameLogic = () => {
             let compressedCol = [];
             for (let row = 0; row < BOARD_SIZE; row++) {
                 if (newBoard[row][col] !== 0) {
-                    compressedCol.push(newBoard[row][col]); // Remove zeros
+                    compressedCol.push(newBoard[row][col]); 
                 }
             }
             let mergedCol = [];
 
             for (let i = 0; i < compressedCol.length; i++) {
                 if (compressedCol[i] === compressedCol[i + 1]) {
-                    const newValue = compressedCol[i] * 2; // Merge same values
-                    mergedCol.push(newValue); // Add to the end
-                    setScore((prevScore) => prevScore + newValue); // Add score
-                    i++; // Skip the next tile
+                    const newValue = compressedCol[i] * 2; 
+                    mergedCol.push(newValue); 
+                    setScore((prevScore) => prevScore + newValue); 
+                    i++; 
                     moved = true;
                 } else {
                     mergedCol.push(compressedCol[i]);
@@ -145,24 +144,24 @@ const GameLogic = () => {
             let compressedCol = [];
             for (let row = 0; row < BOARD_SIZE; row++) {
                 if (newBoard[row][col] !== 0) {
-                    compressedCol.push(newBoard[row][col]); // Remove zeros
+                    compressedCol.push(newBoard[row][col]); 
                 }
             }
             let mergedCol = [];
 
             for (let i = compressedCol.length - 1; i >= 0; i--) {
                 if (compressedCol[i] === compressedCol[i - 1]) {
-                    const newValue = compressedCol[i] * 2; // Merge same values
-                    mergedCol.unshift(newValue); // Add to the beginning
-                    setScore((prevScore) => prevScore + newValue); // Add score
-                    i--; // Skip the next tile
+                    const newValue = compressedCol[i] * 2; 
+                    mergedCol.unshift(newValue); 
+                    setScore((prevScore) => prevScore + newValue); 
+                    i--; 
                     moved = true;
                 } else {
                     mergedCol.unshift(compressedCol[i]);
                 }
             }
 
-            // Add zeros to the beginning
+          
             while (mergedCol.length < BOARD_SIZE) {
                 mergedCol.unshift(0);
             }
@@ -182,15 +181,15 @@ const GameLogic = () => {
         let moved = false;
 
         for (let row = 0; row < BOARD_SIZE; row++) {
-            let compressedRow = newBoard[row].filter((val) => val !== 0); // Remove zeros
+            let compressedRow = newBoard[row].filter((val) => val !== 0); 
             let mergedRow = [];
 
             for (let i = 0; i < compressedRow.length; i++) {
                 if (compressedRow[i] === compressedRow[i + 1]) {
-                    const newValue = compressedRow[i] * 2; // Merge same values
+                    const newValue = compressedRow[i] * 2; 
                     mergedRow.push(newValue);
-                    setScore((prevScore) => prevScore + newValue); // Add score
-                    i++; // Skip the next tile
+                    setScore((prevScore) => prevScore + newValue); 
+                    i++; 
                     moved = true;
                 } else {
                     mergedRow.push(compressedRow[i]);
@@ -215,22 +214,22 @@ const GameLogic = () => {
         let moved = false;
 
         for (let row = 0; row < BOARD_SIZE; row++) {
-            let compressedRow = newBoard[row].filter((val) => val !== 0); // Remove zeros
+            let compressedRow = newBoard[row].filter((val) => val !== 0); 
             let mergedRow = [];
 
             for (let i = compressedRow.length - 1; i >= 0; i--) {
                 if (compressedRow[i] === compressedRow[i - 1]) {
-                    const newValue = compressedRow[i] * 2; // Merge same values
-                    mergedRow.unshift(newValue); // Add to the beginning
-                    setScore((prevScore) => prevScore + newValue); // Add score
-                    i--; // Skip the next tile
+                    const newValue = compressedRow[i] * 2; 
+                    mergedRow.unshift(newValue); 
+                    setScore((prevScore) => prevScore + newValue);
+                    i--; 
                     moved = true;
                 } else {
                     mergedRow.unshift(compressedRow[i]);
                 }
             }
 
-            // Add zeros to the beginning
+            
             while (mergedRow.length < BOARD_SIZE) {
                 mergedRow.unshift(0);
             }
@@ -245,7 +244,7 @@ const GameLogic = () => {
     };
 
     const isGameOver = (newBoard) => {
-        // Check if all moves are blocked or there are no empty tiles
+       
         for (let row = 0; row < BOARD_SIZE; row++) {
             for (let col = 0; col < BOARD_SIZE; col++) {
                 if (newBoard[row][col] === 0) {
@@ -264,11 +263,11 @@ const GameLogic = () => {
 
     useEffect(() => {
         if (auth.currentUser) {
-            initializeGame(); // Initialize the game if the user is logged in
+            initializeGame(); 
         } else {
             console.log("User is not logged in.");
             Alert.alert("Log In", "You must be logged in to play the game.", [
-                { text: "Log In", onPress: () => navigation.navigate('Login') } // Redirect to login screen
+                { text: "Log In", onPress: () => navigation.navigate('Login') } 
             ]);
         }
     }, []);

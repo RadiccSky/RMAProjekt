@@ -1,38 +1,38 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
-import { auth, firestore } from '../firebaseConfig'; // Ensure firebaseConfig is correctly set up
-import { doc, onSnapshot } from 'firebase/firestore'; // Import necessary Firestore functions
+import { auth, firestore } from '../firebaseConfig'; 
+import { doc, onSnapshot } from 'firebase/firestore';
 
 export default function MyProfile() {
-  const [highestScore, setHighestScore] = useState(null); // State to store highest score
-  const [memoriTimeScore, setMemoriTimeScore] = useState(null); // State to store Memori time score
-  const [loading, setLoading] = useState(true); // State to show loading indicator
+  const [highestScore, setHighestScore] = useState(null); 
+  const [memoriTimeScore, setMemoriTimeScore] = useState(null); 
+  const [loading, setLoading] = useState(true); 
 
-  // Function to fetch scores from Firestore
+ 
   useEffect(() => {
     if (auth.currentUser) {
-      const userId = auth.currentUser.uid; // Get the current user's ID
-      const docRef = doc(firestore, 'users', userId); // Reference to the user's document
+      const userId = auth.currentUser.uid; 
+      const docRef = doc(firestore, 'users', userId); 
 
-      // Listen for real-time updates
+  
       const unsubscribe = onSnapshot(docRef, (docSnap) => {
         if (docSnap.exists()) {
-          const userData = docSnap.data(); // Get the user's data
-          setHighestScore(userData.highestScore || 0); // Save the highest score
-          setMemoriTimeScore(userData.memoriTimeScore || 0); // Save the Memori time score
+          const userData = docSnap.data(); 
+          setHighestScore(userData.highestScore || 0);
+          setMemoriTimeScore(userData.memoriTimeScore || 0); 
         } else {
           console.log('User profile not found.');
         }
-        setLoading(false); // Loading finished
+        setLoading(false); 
       }, (error) => {
         console.error('Error fetching scores: ', error);
-        setLoading(false); // Loading finished
+        setLoading(false); 
       });
 
-      // Cleanup the listener on unmount
+      
       return () => unsubscribe();
     } else {
-      setLoading(false); // If the user is not logged in, finish loading
+      setLoading(false); 
     }
   }, []);
 
@@ -40,7 +40,7 @@ export default function MyProfile() {
     <View style={styles.container}>
       <Text style={styles.heading}>Korisnički Profil</Text>
       {loading ? (
-        <Text>Učitavanje...</Text> // Show loading indicator while fetching scores
+        <Text>Učitavanje...</Text> 
       ) : (
         <>
           <Text style={styles.info}>Email: {auth.currentUser?.email}</Text>

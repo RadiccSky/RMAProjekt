@@ -3,13 +3,13 @@ import { createDrawerNavigator } from "@react-navigation/drawer";
 import { View, Button, StyleSheet } from "react-native";
 import HomePage from "./HomePage";
 import MyProfile from "./MyProfile";
-import Games from "./Games";
-import { AuthContext } from "../AuthContext"; // Import AuthContext
+import Leaderboard from "./Leaderboard";
+import { AuthContext } from "../AuthContext"; 
 
 const Drawer = createDrawerNavigator();
 
 const LogoutButton = () => {
-  const { logout } = useContext(AuthContext); // Access logout function
+  const { logout } = useContext(AuthContext); 
 
   return (
     <View style={styles.buttonContainer}>
@@ -41,9 +41,9 @@ export default function MainView() {
         options={{ title: "My Profile" }}
       />
       <Drawer.Screen
-        name="Games"
-        component={Games}
-        options={{ title: "Games" }}
+        name="Leaderboard"
+        component={Leaderboard}
+        options={{ title: "Leaderboard" }}
       />
       <Drawer.Screen
         name="Logout"

@@ -3,7 +3,7 @@ import { createStackNavigator } from "@react-navigation/stack";
 import { NavigationContainer } from "@react-navigation/native";
 import LoggedOutView from "./components/LoggedOutView";
 import RegistrationView from "./components/RegistrationView";
-import MainView from "./components/MainView"; // Ensure this import is correct
+import MainView from "./components/MainView"; 
 import { Routes } from "./components/Routes";
 import { AuthContext } from "./AuthContext";
 
@@ -13,7 +13,7 @@ export default function Navigation() {
   const { isLoggedIn, loading } = useContext(AuthContext);
 
   if (loading) {
-    return null; // You can add a loader here
+    return null; 
   }
 
   return (
