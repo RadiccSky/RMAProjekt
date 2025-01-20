@@ -1,9 +1,7 @@
 import React, { useState, useContext } from "react";
 import { View, StyleSheet, Text } from "react-native";
-import { auth, firestore } from "../firebaseConfig";
+import { supabase } from "../SupabaseClient";
 import { AuthContext } from "../AuthContext";
-import { createUserWithEmailAndPassword } from "firebase/auth";
-import { doc, setDoc } from "firebase/firestore";
 import LoginInput from "./ui/LoginInput";
 import LoginButton from "./ui/LoginButton";
 import ErrorMessage from "./ui/ErrorMessage";
@@ -12,65 +10,87 @@ import CoinyText from "./ui/CoinyText";
 export default function RegistrationView({ onNavigateToLogin, onRegistrationSuccess }) {
   const { login } = useContext(AuthContext);
   const [email, setEmail] = useState("");
+  const [name, setName] = useState("");
   const [passw, setPassw] = useState("");
   const [confirmPassw, setConfirmPassw] = useState("");
   const [errorMsg, setErrorMsg] = useState("");
 
   const handleRegistration = async () => {
-    // Provjera da li se lozinke podudaraju
     if (passw !== confirmPassw) {
       setErrorMsg("Lozinke se ne podudaraju!");
       return;
     }
-    
-    // Regex za provjeru ispravnog email formata
+  
     const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
   
-    // Provjera da li su svi podaci uneseni
-    if (!email || !passw) {
+    if (!email || !passw || !name) {
       setErrorMsg("Unesite sve podatke.");
       return;
     }
-
-    // Provjera da li je email u ispravnom formatu
+  
     if (!emailRegex.test(email)) {
       setErrorMsg("Unesite važeću email adresu.");
       return;
     }
-
+  
     try {
-      // Kreiranje korisničkog računa s emailom i lozinkom
-      const userCredential = await createUserWithEmailAndPassword(auth, email, passw);
-      const user = userCredential.user;
-
-      // Create a user document in Firestore
-      await setDoc(doc(firestore, 'users', user.uid), {
-        email: user.email,
-        scores: [],
+      // Kreiranje korisnika
+      const { data: user, error } = await supabase.auth.signUp({
+        email: email,
+        password: passw,
       });
-
-      login();  // Ažuriranje prijavljenog korisnika u kontekstu
-      onRegistrationSuccess();  // Pozivanje funkcije za uspješnu registraciju
+  
+      if (error) throw error;
+  
+      if (!user) {
+        throw new Error("Neuspješna registracija, korisnik nije vraćen.");
+      }
+  
+      // Dodavanje korisničkih podataka u "users" tabelu
+      const { error: dbError } = await supabase
+        .from("users")
+        .insert([
+          {
+            email: email,
+            name: name,
+            user_id: user.user.id, // Korisnički ID iz Supabase-a
+          },
+        ]);
+  
+      if (dbError) throw dbError;
+  
+      // Automatska prijava korisnika nakon registracije
+      await login(email, passw, false);
+      onRegistrationSuccess();
+  
     } catch (error) {
-      // Obrada grešaka koje dolaze iz Firebase-a
-      console.error("Greška pri registraciji: ", error);
-      if (error.code === 'auth/email-already-in-use') {
+      console.error("Greška pri registraciji:", error.message);
+  
+      // Obrada grešaka
+      if (error.message.includes("duplicate key value violates unique constraint")) {
         setErrorMsg("Email je već registriran.");
-      } else if (error.code === 'auth/invalid-email') {
-        setErrorMsg("Unesite valjan email.");
-      } else if (error.code === 'auth/weak-password') {
+      } else if (error.message.includes("invalid email")) {
+        setErrorMsg("Unesite važeću email adresu.");
+      } else if (error.message.includes("password is too weak")) {
         setErrorMsg("Lozinka je preslaba, odaberite jaču lozinku.");
       } else {
         setErrorMsg("Došlo je do pogreške, pokušajte ponovno.");
       }
     }
   };
+  
 
   return (
     <View style={styles.container}>
       <CoinyText style={{ fontSize: 40, color: "#E82561", marginBottom: 20 }}>
         Registracija
       </CoinyText>
+
+      <LoginInput
+        placeholder="Unesite ime"
+        value={name}
+        onChangeText={setName}
+      />
 
       <LoginInput placeholder="Unesite email" value={email} onChangeText={setEmail} />
 

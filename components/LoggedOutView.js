@@ -4,8 +4,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import LoginInput from "./ui/LoginInput";
 import LoginButton from "./ui/LoginButton";
 import { AuthContext } from "../AuthContext";
-import { signInWithEmailAndPassword } from "firebase/auth";
-import { auth } from "../firebaseConfig";
+import {supabase} from '../SupabaseClient';
 import CoinyText from "./ui/CoinyText";
 import PasswordInput from "./ui/PasswordInput";
 import RememberMe from "./ui/RememberMe";
@@ -44,8 +43,11 @@ export default function LoggedOutView({ onNavigateToRegister, onLoginSuccess }) 
     }
 
     try {
-      // Attempt login using the entered credentials
-      await signInWithEmailAndPassword(auth, email, passw);
+      
+      const { user, error } = await supabase.auth.signInWithPassword({ email, password: passw });
+      
+      if (error) throw error;
+
 
       // Save credentials if "Remember Me" is checked
       if (isChecked) {
@@ -59,7 +61,7 @@ export default function LoggedOutView({ onNavigateToRegister, onLoginSuccess }) 
       }
 
       // Login successful, trigger context login function and navigation
-      login(email,passw);  // Calls the login function in AuthContext
+      login(email,passw, isChecked);  // Calls the login function in AuthContext
       onLoginSuccess();  // Prop callback to inform successful login
     } catch (error) {
       console.error("Login error:", error.message);

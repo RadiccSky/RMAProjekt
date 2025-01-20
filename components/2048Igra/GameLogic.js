@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Alert } from 'react-native';
-import { doc, setDoc, getDoc } from "firebase/firestore";
-import { firestore, auth } from '../../firebaseConfig'; // Ensure firebaseConfig is correctly set up
+import {supabase} from '../../SupabaseClient';
+import {useAuth} from '../../AuthContext';
 import { useNavigation } from '@react-navigation/native'; // Add this line for navigation
 
 const BOARD_SIZE = 4;
@@ -9,12 +9,22 @@ const BOARD_SIZE = 4;
 const GameLogic = () => {
     const navigation = useNavigation(); // Initialize navigation
     const [score, setScore] = useState(0);  
+    const { user, loading } = useAuth(); // Pristup korisničkim podacima iz AuthContext-a
     const [board, setBoard] = useState(Array.from({ length: BOARD_SIZE },
         () => Array(BOARD_SIZE).fill(0)));
 
-    const resetScore = () => {
-        setScore(0);
-    };
+    
+
+    useEffect(() => {
+        if (loading) return; // Čekaj da se autentifikacijsko stanje učita
+        if (!user) {
+            Alert.alert('Log In', 'You must be logged in to play the game.', [
+                { text: 'Log In', onPress: () => navigation.navigate('Login') },
+            ]);
+        } else {
+            initializeGame(); // Pokreni igru ako je korisnik prijavljen
+        }
+    }, [user, loading]);
 
     const initializeGame = () => {
         resetScore(); // Reset score
@@ -24,6 +34,7 @@ const GameLogic = () => {
         addNewTile(newBoard);
         setBoard(newBoard);
     };
+    const resetScore = () =>  setScore(0);
 
     const addNewTile = (newBoard) => {
         const emptyTiles = [];
@@ -42,30 +53,42 @@ const GameLogic = () => {
     };
 
     const saveScore = async (score) => {
+        if (!user) return;
         try {
-            const userId = auth.currentUser.uid; // Get the current user's ID
-            const docRef = doc(firestore, "users", userId); // Reference to the user's document
-            const docSnap = await getDoc(docRef); // Fetch the user's document
-
-            if (docSnap.exists()) {
-                const userData = docSnap.data();
-                const highestScore = userData.highestScore || 0;
-
-                // Update the highest score if the current score is greater
-                if (score > highestScore) {
-                    await setDoc(docRef, { highestScore: score }, { merge: true });
-                    console.log("New highest score saved to Firestore.");
-                } else {
-                    console.log("Score saved to Firestore.");
-                }
+            const { user: currentUser, error: authError } = await supabase.auth.getUser();
+            if (authError) throw authError;
+            if (!currentUser || !currentUser.id) return;
+    
+            // Pretvori score u string (text)
+            const scoreAsString = String(score);
+    
+            const { data, error } = await supabase
+                .from('game_scores')
+                .select('score_2048')
+                .eq('user_id', currentUser.id)
+                .single();
+    
+            if (error) throw error;
+    
+            const highestScore = data?.score_2048 || "0"; // Ako je trenutno najviši rezultat 0, postavi ga kao string
+    
+            // Ako je trenutni score veći od najvišeg, spremi novi rezultat
+            if (parseInt(scoreAsString) > parseInt(highestScore)) {
+                const { error: updateError } = await supabase
+                    .from('game_scores')
+                    .update({ score_2048: scoreAsString }) // Spremi kao string
+                    .eq('user_id', currentUser.id);
+    
+                if (updateError) throw updateError;
+    
+                console.log("New highest score saved.");
             } else {
-                console.log("User profile not found.");
+                console.log("Score saved.");
             }
         } catch (error) {
-            console.error("Error saving score: ", error);
+            console.error("Error saving score: ", error.message);
         }
     };
-
     const handleSwipe = (direction) => {
         const newBoard = JSON.parse(JSON.stringify(board)); // Deep copy of the board
         let moved = false;
@@ -263,7 +286,7 @@ const GameLogic = () => {
     };
 
     useEffect(() => {
-        if (auth.currentUser) {
+        if (supabase.auth.getUser()) {
             initializeGame(); // Initialize the game if the user is logged in
         } else {
             console.log("User is not logged in.");

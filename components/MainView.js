@@ -1,22 +1,12 @@
-import React, { useContext } from "react";
+import React from "react";
 import { createDrawerNavigator } from "@react-navigation/drawer";
-import { View, Button, StyleSheet } from "react-native";
+import { StyleSheet } from "react-native";
 import HomePage from "./HomePage";
-import MyProfile from "./MyProfile";
 import Games from "./Games";
-import { AuthContext } from "../AuthContext"; // Import AuthContext
+import AppNavigator from "./AppNavigator";
 
 const Drawer = createDrawerNavigator();
 
-const LogoutButton = () => {
-  const { logout } = useContext(AuthContext); // Access logout function
-
-  return (
-    <View style={styles.buttonContainer}>
-      <Button title="Logout" onPress={logout} color="#D65076" />
-    </View>
-  );
-};
 
 export default function MainView() {
   return (
@@ -37,18 +27,13 @@ export default function MainView() {
       />
       <Drawer.Screen
         name="Profile"
-        component={MyProfile}
+        component={AppNavigator} // Use AppNavigator to handle MyProfile and ProfilePic
         options={{ title: "My Profile" }}
       />
       <Drawer.Screen
         name="Games"
         component={Games}
         options={{ title: "Games" }}
-      />
-      <Drawer.Screen
-        name="Logout"
-        component={LogoutButton}
-        options={{ title: "Logout" }}
       />
     </Drawer.Navigator>
   );
@@ -61,3 +46,4 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
 });
+

@@ -1,11 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import {
   View, Text, Button, StyleSheet,
   TouchableOpacity, Animated, Easing
 } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
-import { doc, setDoc } from "firebase/firestore";
-import { firestore, auth } from '../../firebaseConfig'; // Ensure firebaseConfig is correctly set up
+import { supabase } from '../../SupabaseClient';
+import { AuthContext } from '../../AuthContext'; 
 
 const randomArrFunction = (arr) => {
   for (let i = arr.length - 1; i > 0; i--) {
@@ -33,8 +33,10 @@ const Memori = () => {
   const [matches, setMatches] = useState(0);
   const [winMessage, setWinMessage] = useState(new Animated.Value(0));
   const [gameWon, setGameWon] = useState(false);
-  const [timer, setTimer] = useState(0);  // New state for timer
-  const [intervalId, setIntervalId] = useState(null); // Store interval ID for clearing it later
+  const [timer, setTimer] = useState(0); 
+  const [intervalId, setIntervalId] = useState(null);
+
+  const { user } = useContext(AuthContext); // Dohvat korisnika iz AuthContext-a
 
   const cardClickFunction = (card) => {
     if (!gameWon && selectedCards.length < 2 && !card.isFlipped) {
@@ -51,8 +53,8 @@ const Memori = () => {
           if (matches + 1 === cards.length / 2) {
             geekWinGameFunction();
             setGameWon(true);
-            clearInterval(intervalId); // Stop the timer once the game is won
-            saveTimeScore(timer); // Save the time score to Firestore
+            clearInterval(intervalId); // Zaustavi timer kada se igra završi
+            saveTimeScore(timer); // Spremi vrijeme u bazu
           }
         } else {
           setTimeout(() => {
@@ -78,14 +80,42 @@ const Memori = () => {
 
   const saveTimeScore = async (timeScore) => {
     try {
-      const userId = auth.currentUser.uid; // Get the current user's ID
-      const docRef = doc(firestore, "users", userId); // Reference to the user's document
+      if (!user || !user.id) {
+        console.error("User is not logged in or user id is missing.");
+        return;
+      }
 
-      // Update the document with the new time score
-      await setDoc(docRef, { memoriTimeScore: timeScore }, { merge: true });
-      console.log("Time score saved to Firestore.");
+      const score = parseInt(timeScore, 10);
+      if (isNaN(score)) throw new Error("Invalid time score. It must be a number.");
+
+      const { data: existingScores, error: fetchError } = await supabase
+        .from('game_scores')
+        .select('scores_id')
+        .eq('user_id', user.id)
+        .single();
+
+      if (fetchError && fetchError.code !== 'PGRST100') {
+        throw new Error(fetchError.message);
+      }
+
+      const payload = {
+        user_id: user.id,
+        score_memori: score,
+      };
+
+      if (existingScores) {
+        payload.scores_id = existingScores.scores_id;
+      }
+
+      const { data, error } = await supabase
+        .from('game_scores')
+        .upsert(payload, { returning: 'representation' });
+
+      if (error) throw new Error(error.message);
+
+      console.log("Time score saved/updated:", data);
     } catch (error) {
-      console.error("Error saving time score: ", error);
+      console.error("Error saving time score: ", error.message);
     }
   };
 
@@ -93,23 +123,22 @@ const Memori = () => {
     if (matches === cards.length / 2) {
       geekWinGameFunction();
       setGameWon(true);
-      clearInterval(intervalId); // Stop timer when game is won
+      clearInterval(intervalId);
     }
   }, [matches]);
 
   useEffect(() => {
     if (!gameWon) {
       const id = setInterval(() => {
-        setTimer(prevTime => prevTime + 1); // Increase time every second
+        setTimer(prevTime => prevTime + 1);
       }, 1000);
       setIntervalId(id);
-      return () => clearInterval(id); // Cleanup the interval on unmount or game over
+      return () => clearInterval(id);
     }
   }, [gameWon]);
 
-  const msg = `Matches: ${matches} / ${cards.length / 2}`;
-  const formattedTime = `${Math.floor(timer / 60)}:${timer % 60 < 10 ? '0' + timer % 60 : timer % 60}`;
-
+      const msg = `Parovi: ${matches} / ${cards.length / 2}`;
+      const formattedTime = `${Math.floor(timer / 60)}:${timer % 60 < 10 ? '0' + timer % 60 : timer % 60}`;
   return (
     <View style={styles.container}>
       <Text style={styles.header1}>Memori</Text>

@@ -1,9 +1,12 @@
-import React, { createContext, useState, useEffect } from "react";
+import React, { createContext, useState, useEffect, useContext } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { onAuthStateChanged, signOut, signInWithEmailAndPassword } from "firebase/auth";
-import { auth } from "./firebaseConfig"; 
+import { supabase } from "./SupabaseClient"; // Importiraj Supabase klijent
 
 export const AuthContext = createContext();
+
+export const useAuth = () => {
+  return useContext(AuthContext);
+};
 
 export const AuthProvider = ({ children }) => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -11,70 +14,113 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
 
   useEffect(() => {
-    console.log("Auth state initialization started...");
+    const checkUserSession = async () => {
+      try {
+        console.log("Provjera trenutne sesije...");
+        const { data: session, error } = await supabase.auth.getSession();
 
-    const unsubscribe = onAuthStateChanged(auth, async (user) => {
-      console.log("Auth state changed:", user);
+        if (error) {
+          console.error("Greška prilikom dohvaćanja sesije:", error.message);
+          setIsLoggedIn(false);
+          return;
+        }
 
-      if (user) {
-        setIsLoggedIn(true);
-        setUser({ email: user.email });
-      } else {
-        console.log("No user found, checking remembered credentials...");
-        const rememberedEmail = await AsyncStorage.getItem("rememberedEmail");
-        const rememberedPassword = await AsyncStorage.getItem("rememberedPassword");
+        console.log("Dohvaćena sesija:", session);
 
-        if (rememberedEmail && rememberedPassword) {
-          try {
-            await signInWithEmailAndPassword(auth, rememberedEmail, rememberedPassword);
+        if (session?.user) {
+          console.log("Sesija pronađena, postavljanje korisnika.");
+          setIsLoggedIn(true);
+          setUser(session.user);
+        } else {
+          console.log("Sesija nije pronađena, provjera AsyncStorage...");
+          const rememberedEmail = await AsyncStorage.getItem("rememberedEmail");
+          const rememberedPassword = await AsyncStorage.getItem("rememberedPassword");
+
+          if (rememberedEmail && rememberedPassword) {
+            console.log("Pokušaj automatske prijave s pohranjenim vjerodajnicama...");
+            const { data, error } = await supabase.auth.signInWithPassword({
+              email: rememberedEmail,
+              password: rememberedPassword,
+            });
+
+            if (error) {
+              console.error("Auto-login greška:", error.message);
+              setIsLoggedIn(false);
+              return;
+            }
+
+            console.log("Automatska prijava uspješna:", data.user);
             setIsLoggedIn(true);
-          } catch (error) {
-            console.error("Auto-login failed:", error.message);
+            setUser(data.user);
+          } else {
+            console.log("Nema pohranjenih vjerodajnica.");
             setIsLoggedIn(false);
           }
-        } else {
-          setIsLoggedIn(false);
         }
+      } catch (error) {
+        console.error("Greška prilikom provjere sesije:", error.message);
+        setIsLoggedIn(false);
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
-    });
+    };
 
-    return () => unsubscribe();
+    checkUserSession();
   }, []);
 
   const login = async (email, passw, rememberMe) => {
     try {
-      await signInWithEmailAndPassword(auth, email, passw);
+      console.log("Pokušaj prijave s e-mailom:", email);
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password: passw,
+      });
+
+      if (error) {
+        console.error("Greška prilikom prijave:", error.message);
+        throw error;
+      }
+
+      if (!data?.user) {
+        console.error("Prijava neuspješna: Korisnik nije vraćen.");
+        throw new Error("Prijava neuspješna: Korisnik nije vraćen.");
+      }
+
+      console.log("Prijava uspješna:", data.user);
       setIsLoggedIn(true);
+      setUser(data.user);
 
       if (rememberMe) {
+        console.log("Pohranjivanje vjerodajnica u AsyncStorage.");
         await AsyncStorage.setItem("rememberedEmail", email);
         await AsyncStorage.setItem("rememberedPassword", passw);
       } else {
+        console.log("Brisanje pohranjenih vjerodajnica iz AsyncStorage.");
         await AsyncStorage.removeItem("rememberedEmail");
         await AsyncStorage.removeItem("rememberedPassword");
       }
     } catch (error) {
-      console.error("Login error:", error.message);
+      console.error("Greška prilikom prijave:", error.message);
     }
   };
 
   const logout = async () => {
     try {
-      await signOut(auth);
+      console.log("Pokušaj odjave...");
+      await supabase.auth.signOut();
+      console.log("Odjava uspješna.");
       setIsLoggedIn(false);
-      setUser(null); 
+      setUser(null);
+
+      console.log("Brisanje pohranjenih vjerodajnica iz AsyncStorage.");
       await AsyncStorage.removeItem("rememberedEmail");
       await AsyncStorage.removeItem("rememberedPassword");
     } catch (error) {
-      console.error("Logout error:", error.message);
+      console.error("Greška prilikom odjave:", error.message);
     }
   };
 
-  if (loading) {
-    console.log("Loading authentication state..."); // Debugging log
-    return null; // Dodaj loader ovdje ako želiš
-  }
+  if (loading) return null; // Prikaz loadera dok se provjerava sesija
 
   return (
     <AuthContext.Provider value={{ login, logout, isLoggedIn, user }}>
