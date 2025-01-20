@@ -107,7 +107,7 @@ const Memori = () => {
     }
   }, [gameWon]);
 
-  const msg = `Matches: ${matches} / ${cards.length / 2}`;
+  const msg = `Parovi: ${matches} / ${cards.length / 2}`;
   const formattedTime = `${Math.floor(timer / 60)}:${timer % 60 < 10 ? '0' + timer % 60 : timer % 60}`;
 
   return (
@@ -118,7 +118,7 @@ const Memori = () => {
       {!gameWon && (
         <>
           <Text style={styles.matchText}>{msg}</Text>
-          <Text style={styles.timerText}>Time: {formattedTime}</Text>
+          <Text style={styles.timerText}>Vrijeme: {formattedTime}</Text>
         </>
       )}
 
@@ -167,18 +167,26 @@ const styles = StyleSheet.create({
     backgroundColor: 'white',
   },
   header1: {
-    fontSize: 36,
+    fontSize: 48,
     marginBottom: 10,
     color: 'green',
+    fontWeight: 'bold',
+    textShadowColor: 'rgba(0, 0, 0, 0.75)',
+    textShadowOffset: { width: -1, height: 1 },
+    textShadowRadius: 2,
   },
   matchText: {
     fontSize: 18,
     color: 'black',
   },
   timerText: {
-    fontSize: 18,
+    fontSize: 24,
     marginTop: 10,
-    color: 'black',
+    color: 'red',
+    fontWeight: 'bold',
+    textShadowColor: 'rgba(0, 0, 0, 0.75)',
+    textShadowOffset: { width: -1, height: 1 },
+    textShadowRadius: 0,
   },
   grid: {
     flexDirection: 'row',
@@ -186,6 +194,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   card: {
+    
     width: 80,
     height: 80,
     margin: 10,
@@ -193,8 +202,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: '#FFD700',
     borderRadius: 10,
-    borderWidth: 1,
-    borderColor: 'black',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.8,
+    shadowRadius: 2,
+    elevation: 5, // Shadow for Android
   },
   cardFlipped: {
     backgroundColor: 'white',

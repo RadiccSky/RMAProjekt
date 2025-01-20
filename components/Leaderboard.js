@@ -103,25 +103,24 @@ const Leaderboard = () => {
       {loading ? (
         <Text>Loading...</Text>
       ) : (
-        <ScrollView>
-          {renderPodium(selectedGame === '2048' ? leaderboard2048 : leaderboardMemori)}
-          <View style={styles.header}>
-            <Text style={styles.headerText}>RANK</Text>
-            <Text style={styles.headerText}>User Email</Text>
-            <Text style={styles.headerText}>{selectedGame === '2048' ? 'Score' : 'Time'}</Text>
-          </View>
-          {(selectedGame === '2048' ? leaderboard2048 : leaderboardMemori).slice(3).map((item, index) => (
-            <View key={item.email} style={styles.leaderboardItem}>
-              <View style={styles.rankContainer}>
+        <View style={styles.leaderboardBackgroundContainer}>
+          <View style={styles.leaderboardBackground} />
+          <ScrollView contentContainerStyle={styles.scrollViewContent}>
+            {renderPodium(selectedGame === '2048' ? leaderboard2048 : leaderboardMemori)}
+            <View style={styles.additionalBackground} />
+            {(selectedGame === '2048' ? leaderboard2048 : leaderboardMemori).slice(3).map((item, index) => (
+              <View key={item.email} style={styles.leaderboardItemContainer}>
                 <Text style={styles.rank}>{index + 4}</Text>
+                <View style={styles.leaderboardItem}>
+                  <Text style={styles.email}>{item.email}</Text>
+                  <Text style={styles.score}>
+                    {selectedGame === '2048' ? `Score: ${item.score}` : `Time: ${item.time} seconds`}
+                  </Text>
+                </View>
               </View>
-              <Text style={styles.email}>{item.email}</Text>
-              <Text style={styles.score}>
-                {selectedGame === '2048' ? `Score: ${item.score}` : `Time: ${item.time} seconds`}
-              </Text>
-            </View>
-          ))}
-        </ScrollView>
+            ))}
+          </ScrollView>
+        </View>
       )}
     </View>
   );
@@ -164,30 +163,29 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFD700',
     marginTop: 120,
     width: 100,
+    height: 200,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginHorizontal: 10,
+    borderRadius: 20,
+  },
+  secondPlace: {
+    backgroundColor: '#C0C0C0',
+    width: 100,
     height: 150,
     justifyContent: 'center',
     alignItems: 'center',
     marginHorizontal: 10,
-    borderRadius: 10,
+    borderRadius: 20,
   },
-  secondPlace: {
-    backgroundColor: '#C0C0C0',
+  thirdPlace: {
+    backgroundColor: '#CD7F32',
     width: 100,
     height: 120,
     justifyContent: 'center',
     alignItems: 'center',
     marginHorizontal: 10,
-    borderRadius: 10,
-  },
-  thirdPlace: {
-    backgroundColor: '#CD7F32',
-    
-    width: 100,
-    height: 90,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginHorizontal: 10,
-    borderRadius: 10,
+    borderRadius: 20,
   },
   podiumText: {
     fontSize: 24,
@@ -199,6 +197,35 @@ const styles = StyleSheet.create({
     color: 'white',
     textAlign: 'center',
   },
+  leaderboardBackgroundContainer: {
+    position: 'relative',
+    flex: 1,
+  },
+  leaderboardBackground: {
+    position: 'absolute',
+    
+    top: '10%', // Overlap podium by 10%
+    backgroundColor: 'white', // Background color for the leaderboard
+    borderRadius: 20, // Rounded corners
+    zIndex: -1,
+  },
+  additionalBackground: {
+    position: 'absolute',
+    marginTop: '96%',
+    width: '100%', // Cover 100% of the screen width
+    height: '100%',
+    backgroundColor: 'white',
+    borderRadius: 30,
+  
+  },
+  scrollViewContent: {
+    paddingTop: '15%', // Adjust padding to ensure content is not hidden behind the background
+  },
+  leaderboardItemContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 10,
+  },
   leaderboardItem: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -206,20 +233,16 @@ const styles = StyleSheet.create({
     padding: 10,
     borderBottomWidth: 1,
     borderBottomColor: '#ccc',
-    marginBottom: 10,
     borderRadius: 20, // Rounded shape for rank items
     backgroundColor: '#F4887C', // Rank item color
-  },
-  rankContainer: {
-    backgroundColor: '#F4887C',
-    borderRadius: 20,
-    padding: 15,
-    marginRight: 10,
+    left: 10,
   },
   rank: {
     fontSize: 16,
     fontWeight: 'bold',
-    color: 'white',
+    color: 'black',
+    marginRight: 10,
+    left: 10,
   },
   email: {
     fontSize: 16,
@@ -229,19 +252,7 @@ const styles = StyleSheet.create({
   score: {
     fontSize: 16,
     color: 'white',
-    width: width * 0.3, // Adjust width based on screen size
-  },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    padding: 10,
-    borderBottomWidth: 1,
-    borderBottomColor: '#000',
-  },
-  headerText: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    width: width * 0.3, // Adjust width based on screen size
+    width: width * 0.25, // Adjust width based on screen size
   },
 });
 
