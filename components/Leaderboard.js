@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, ScrollView, Dimensions } from 'react-native';
-import { firestore } from '../firebaseConfig'; // Ensure firebaseConfig is correctly set up
-import { collection, getDocs } from 'firebase/firestore';
+import { supabase } from '../SupabaseClient'; // Ensure SupabaseClient is correctly set up
 
 const { width } = Dimensions.get('window');
 
@@ -11,24 +10,42 @@ const Leaderboard = () => {
   const [leaderboardMemori, setLeaderboardMemori] = useState([]); // State to store Memori leaderboard data
   const [loading, setLoading] = useState(true); // State to show loading indicator
 
-  // Function to fetch leaderboard data from Firestore
+  // Function to fetch leaderboard data from Supabase
   const fetchLeaderboardData = async () => {
     console.log('Fetching leaderboard data...');
     try {
-      const usersCollection = collection(firestore, 'users');
-      const usersSnapshot = await getDocs(usersCollection);
+      const { data: scoresData, error: scoresError } = await supabase
+        .from('game_scores')
+        .select('scores_id, score_2048, score_memori');
+
+      if (scoresError) {
+        console.error('Error fetching scores data:', scoresError);
+        return;
+      }
+
+      const userIds = scoresData.map(score => score.scores_id);
+      const { data: usersData, error: usersError } = await supabase
+        .from('users')
+        .select('user_id, email')
+        .in('user_id', userIds);
+
+      if (usersError) {
+        console.error('Error fetching users data:', usersError);
+        return;
+      }
 
       const leaderboard2048Data = [];
       const leaderboardMemoriData = [];
 
-      usersSnapshot.forEach((doc) => {
-        const userData = doc.data();
-        console.log('User data:', userData);
-        if (userData.highestScore) {
-          leaderboard2048Data.push({ email: doc.id, score: userData.highestScore });
-        }
-        if (userData.memoriTimeScore) {
-          leaderboardMemoriData.push({ email: doc.id, time: userData.memoriTimeScore });
+      scoresData.forEach((scoreData) => {
+        const user = usersData.find(user => user.user_id === scoreData.scores_id);
+        if (user) {
+          if (scoreData.score_2048) {
+            leaderboard2048Data.push({ email: user.email, score: scoreData.score_2048 });
+          }
+          if (scoreData.score_memori) {
+            leaderboardMemoriData.push({ email: user.email, time: scoreData.score_memori });
+          }
         }
       });
 
@@ -203,7 +220,6 @@ const styles = StyleSheet.create({
   },
   leaderboardBackground: {
     position: 'absolute',
-    
     top: '10%', // Overlap podium by 10%
     backgroundColor: 'white', // Background color for the leaderboard
     borderRadius: 20, // Rounded corners
@@ -216,7 +232,6 @@ const styles = StyleSheet.create({
     height: '100%',
     backgroundColor: 'white',
     borderRadius: 30,
-  
   },
   scrollViewContent: {
     paddingTop: '15%', // Adjust padding to ensure content is not hidden behind the background

@@ -1,13 +1,7 @@
-<<<<<<< HEAD
-import React, { useContext } from "react";
-
-import { View, Button, StyleSheet , TouchableOpacity, Text, Dimensions } from "react-native";
-import HomePage from "./HomePage";
-import MyProfile from "./MyProfile";
-import Leaderboard from "./Leaderboard";
-import { AuthContext } from "../AuthContext";
+import React from "react";
+import { View, TouchableOpacity, Text, StyleSheet, Dimensions } from "react-native";
+import { LinearGradient } from 'expo-linear-gradient';
 import { Routes } from "./Routes";
-import { LinearGradient } from 'expo-linear-gradient'; 
 
 const { width, height } = Dimensions.get('window'); 
 
@@ -49,50 +43,10 @@ export default function MainView({ navigation }) {
         </View>
       </View>
     </LinearGradient>
-=======
-import React from "react";
-import { createDrawerNavigator } from "@react-navigation/drawer";
-import { StyleSheet } from "react-native";
-import HomePage from "./HomePage";
-import Games from "./Games";
-import AppNavigator from "./AppNavigator";
-
-const Drawer = createDrawerNavigator();
-
-
-export default function MainView() {
-  return (
-    <Drawer.Navigator
-      screenOptions={{
-        drawerStyle: {
-          backgroundColor: "#FAF0E6",
-          width: 240,
-        },
-        drawerActiveTintColor: "#D65076",
-        drawerInactiveTintColor: "#8B3A62",
-      }}
-    >
-      <Drawer.Screen
-        name="Home"
-        component={HomePage}
-        options={{ title: "Home Page" }}
-      />
-      <Drawer.Screen
-        name="Profile"
-        component={AppNavigator} // Use AppNavigator to handle MyProfile and ProfilePic
-        options={{ title: "My Profile" }}
-      />
-      <Drawer.Screen
-        name="Games"
-        component={Games}
-        options={{ title: "Games" }}
-      />
-    </Drawer.Navigator>
->>>>>>> ivana
   );
 }
 
-const circleSize = Math.min(width, height) * 0.6; // 60% manje dimenzije ekrana
+const circleSize = Math.min(width, height) * 0.6; // 60% of the smaller screen dimension
 const sectionSize = circleSize * 0.40; 
 
 const styles = StyleSheet.create({
@@ -100,9 +54,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    
   },
-<<<<<<< HEAD
 
   gradientBackground: {
     flex: 1,
@@ -184,7 +136,3 @@ const styles = StyleSheet.create({
     borderBottomRightRadius: sectionSize * 1.2,
   },
 });
-=======
-});
-
->>>>>>> ivana

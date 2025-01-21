@@ -58,6 +58,19 @@ export default function RegistrationView({ onNavigateToLogin, onRegistrationSucc
         ]);
   
       if (dbError) throw dbError;
+
+      // Kreiranje unosa u "game_scores" tabeli za novog korisnika
+      const { error: gameScoresError } = await supabase
+        .from("game_scores")
+        .insert([
+          {
+            user_id: user.user.id,
+            score_2048: 0,
+            score_memori: 0,
+          },
+        ]);
+
+      if (gameScoresError) throw gameScoresError;
   
       // Automatska prijava korisnika nakon registracije
       await login(email, passw, false);
@@ -78,7 +91,6 @@ export default function RegistrationView({ onNavigateToLogin, onRegistrationSucc
       }
     }
   };
-  
 
   return (
     <View style={styles.container}>

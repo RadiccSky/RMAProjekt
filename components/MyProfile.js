@@ -1,9 +1,3 @@
-<<<<<<< HEAD
-import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet } from 'react-native';
-import { auth, firestore } from '../firebaseConfig'; 
-import { doc, onSnapshot } from 'firebase/firestore';
-=======
 import React, { useState, useEffect, useContext } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
 import { supabase } from '../SupabaseClient';
@@ -14,41 +8,11 @@ import ResetButton from './ui/ResetButton';
 import ThemeToggle from './ui/ThemeToggle';
 import NameWithEdit from './ui/NameWithEdit';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
->>>>>>> ivana
 
 export default function MyProfile() {
   const [highestScore, setHighestScore] = useState(null); 
   const [memoriTimeScore, setMemoriTimeScore] = useState(null); 
   const [loading, setLoading] = useState(true); 
-<<<<<<< HEAD
-
- 
-  useEffect(() => {
-    if (auth.currentUser) {
-      const userId = auth.currentUser.uid; 
-      const docRef = doc(firestore, 'users', userId); 
-
-  
-      const unsubscribe = onSnapshot(docRef, (docSnap) => {
-        if (docSnap.exists()) {
-          const userData = docSnap.data(); 
-          setHighestScore(userData.highestScore || 0);
-          setMemoriTimeScore(userData.memoriTimeScore || 0); 
-        } else {
-          console.log('User profile not found.');
-        }
-        setLoading(false); 
-      }, (error) => {
-        console.error('Error fetching scores: ', error);
-        setLoading(false); 
-      });
-
-      
-      return () => unsubscribe();
-    } else {
-      setLoading(false); 
-    }
-=======
   const [imageUrl, setImageUrl] = useState(null); 
   const [name, setName] = useState('');
 
@@ -70,23 +34,23 @@ export default function MyProfile() {
       }
   
       try {
-        const { data, error } = await supabase
+        const { data: scoreData, error: scoreError } = await supabase
           .from('game_scores')
           .select('score_2048, score_memori')
           .eq('user_id', user.id);
   
-        if (error) {
-          console.error('Error fetching scores:', error.message);
+        if (scoreError) {
+          console.error('Error fetching scores:', scoreError.message);
           setLoading(false);
           return;
         }
   
-        if (!data || data.length === 0) {
+        if (!scoreData || scoreData.length === 0) {
           setHighestScore(0);
           setMemoriTimeScore(0);
         } else {
-          setHighestScore(data[0].score_2048 || 0);
-          setMemoriTimeScore(data[0].score_memori || 0);
+          setHighestScore(scoreData[0].score_2048 || 0);
+          setMemoriTimeScore(scoreData[0].score_memori || 0);
         }
   
         const { data: profileData, error: profileError } = await supabase
@@ -112,11 +76,8 @@ export default function MyProfile() {
     };
   
     fetchUserData();
->>>>>>> ivana
   }, []);
   
-
-
   const resetScores = async () => {
     try {
       const { data } = await supabase.auth.getUser();
@@ -158,84 +119,70 @@ export default function MyProfile() {
 
   return (
     <View style={styles.container}>
-<<<<<<< HEAD
-      <Text style={styles.heading}>Korisnički Profil</Text>
-      {loading ? (
-        <Text>Učitavanje...</Text> 
-      ) : (
-        <>
-          <Text style={styles.info}>Email: {auth.currentUser?.email}</Text>
-          <Text style={styles.heading}>2048:</Text>
-          <Text style={styles.info}>
-            {highestScore !== null ? `Bodovi: ${highestScore}` : 'Nema postavljenih bodova.'}
-          </Text>
-          <Text style={styles.heading}>Memori Vrijeme:</Text>
-          <Text style={styles.info}>
-            {memoriTimeScore !== null ? `Vrijeme: ${memoriTimeScore} sekundi` : 'Nema postavljenih vremena.'}
-          </Text>
-        </>
-      )}
-=======
       <View style={styles.upperContainer}>
         <Text style={styles.heading}>Korisnički Profil</Text>
         <ThemeToggle />  
+      </View>
 
-        <View style={styles.lowerContainer}>
-          <View style={styles.profileCircle}>
-            {imageUrl ? (
-              <Image source={{ uri: imageUrl }} style={styles.profileImage} />
-            ) : (
-              <MaterialIcons name="photo" size={50} color="white" />
-            )}
-
-            <TouchableOpacity
-              style={styles.iconContainer}
-              onPress={handleEditAvatar}
-            >
-              <MaterialIcons name="photo-camera" size={30} color="grey" />
-            </TouchableOpacity>
-          </View>
-
-          {loading ? (
-            <Text>Učitavanje...</Text> 
+      <View style={styles.lowerContainer}>
+        <View style={styles.profileCircle}>
+          {imageUrl ? (
+            <Image source={{ uri: imageUrl }} style={styles.profileImage} />
           ) : (
+            <MaterialIcons name="photo" size={50} color="white" />
+          )}
+
+          <TouchableOpacity
+            style={styles.iconContainer}
+            onPress={handleEditAvatar}
+          >
+            <MaterialIcons name="photo-camera" size={30} color="grey" />
+          </TouchableOpacity>
+        </View>
+
+        {loading ? (
+          <Text>Učitavanje...</Text> 
+        ) : (
+          <>
             <NameWithEdit
               initialName={name || 'No name available'}
               onNameUpdate={handleNameUpdate}
             />
-          )}
-
-          <View style={styles.gameInfoContainer}>
-            <View style={styles.gameRow}>
-              <Text style={styles.gameItem}>2048</Text>
-              <Text style={[styles.gameItem, styles.withBorder]}>
-                {highestScore !== null ? `Highscore: ${highestScore}` : 'Nema postavljenih bodova.'}
-              </Text>
-              <Text style={styles.gameItem}>Leaderboard</Text>
+            <View style={styles.nameContainer}>
+              <Text style={styles.nameText}>{name}</Text>
             </View>
-            <ResetButton onReset={resetScores} />
-          </View>
+          </>
+        )}
 
-          <View style={styles.gameInfoContainer}>
-            <View style={styles.gameRow}>
-              <Text style={styles.gameItem}>Memori</Text>
-              <Text style={[styles.gameItem, styles.withBorder]}>
-                {memoriTimeScore !== null ? `Vrijeme: ${memoriTimeScore} sekundi` : 'Nema postavljenih vremena.'}
-              </Text>
-              <Text style={styles.gameItem}>Leaderboard</Text>
-            </View>
-            <ResetButton onReset={resetScores} />
+        <View style={styles.gameInfoContainer}>
+          <View style={styles.gameRow}>
+            <Text style={styles.gameItem}>2048</Text>
+            <Text style={[styles.gameItem, styles.withBorder]}>
+              {highestScore !== null ? `Highscore: ${highestScore}` : 'Nema postavljenih bodova.'}
+            </Text>
+            <Text style={styles.gameItem}>Leaderboard</Text>
           </View>
+          <ResetButton onReset={resetScores} />
+        </View>
 
-          <View style={styles.logoutContainer}>
-            <TouchableOpacity style={styles.logoutButton} onPress={logout}>
-              <Ionicons name="log-out-outline" size={20} color="red" style={styles.icon} />
-              <Text style={styles.logoutButtonText}>Odjava</Text>
-            </TouchableOpacity>
+        <View style={styles.gameInfoContainer}>
+          <View style={styles.gameRow}>
+            <Text style={styles.gameItem}>Memori</Text>
+            <Text style={[styles.gameItem, styles.withBorder]}>
+              {memoriTimeScore !== null ? `Vrijeme: ${memoriTimeScore} sekundi` : 'Nema postavljenih vremena.'}
+            </Text>
+            <Text style={styles.gameItem}>Leaderboard</Text>
           </View>
+          <ResetButton onReset={resetScores} />
+        </View>
+
+        <View style={styles.logoutContainer}>
+          <TouchableOpacity style={styles.logoutButton} onPress={logout}>
+            <Ionicons name="log-out-outline" size={20} color="red" style={styles.icon} />
+            <Text style={styles.logoutButtonText}>Odjava</Text>
+          </TouchableOpacity>
         </View>
       </View>
->>>>>>> ivana
     </View>
   );
 }
@@ -297,6 +244,16 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     marginTop: 10,
   },
+  nameContainer: {
+    backgroundColor: 'gray',
+    padding: 10,
+    borderRadius: 5,
+    marginTop: 10,
+  },
+  nameText: {
+    fontSize: 18,
+    color: 'white',
+  },
   gameInfoContainer: {
     backgroundColor: "yellow",
     width: '100%',
@@ -353,4 +310,3 @@ const styles = StyleSheet.create({
     marginRight: 10,
   },
 });
-
