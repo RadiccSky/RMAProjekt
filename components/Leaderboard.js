@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, ScrollView, Dimensions } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, ScrollView, Dimensions, Image } from 'react-native';
 import { supabase } from '../SupabaseClient'; // Ensure SupabaseClient is correctly set up
 
 const { width } = Dimensions.get('window');
@@ -14,19 +14,22 @@ const Leaderboard = () => {
   const fetchLeaderboardData = async () => {
     console.log('Fetching leaderboard data...');
     try {
+      // Fetching game_scores data with user_id
       const { data: scoresData, error: scoresError } = await supabase
         .from('game_scores')
-        .select('scores_id, score_2048, score_memori');
+        .select('user_id, score_2048, score_memori')
+        .order('score_2048', { ascending: false });  // Sorting by score_2048
 
       if (scoresError) {
         console.error('Error fetching scores data:', scoresError);
         return;
       }
 
-      const userIds = scoresData.map(score => score.scores_id);
+      // Fetching user data based on user_ids
+      const userIds = scoresData.map(score => score.user_id);
       const { data: usersData, error: usersError } = await supabase
         .from('users')
-        .select('user_id, email')
+        .select('user_id, name, avatar_url') // Fetching name and avatar_url
         .in('user_id', userIds);
 
       if (usersError) {
@@ -37,21 +40,22 @@ const Leaderboard = () => {
       const leaderboard2048Data = [];
       const leaderboardMemoriData = [];
 
+      // Processing scores data and linking with user data
       scoresData.forEach((scoreData) => {
-        const user = usersData.find(user => user.user_id === scoreData.scores_id);
+        const user = usersData.find(user => user.user_id === scoreData.user_id);
         if (user) {
-          if (scoreData.score_2048) {
-            leaderboard2048Data.push({ email: user.email, score: scoreData.score_2048 });
+          if (scoreData.score_2048 !== null) {
+            leaderboard2048Data.push({ name: user.name, score: scoreData.score_2048, avatar_url: user.avatar_url });
           }
-          if (scoreData.score_memori) {
-            leaderboardMemoriData.push({ email: user.email, time: scoreData.score_memori });
+          if (scoreData.score_memori !== null) {
+            leaderboardMemoriData.push({ name: user.name, time: scoreData.score_memori, avatar_url: user.avatar_url });
           }
         }
       });
 
-      // Sort the leaderboards
-      leaderboard2048Data.sort((a, b) => b.score - a.score);
-      leaderboardMemoriData.sort((a, b) => a.time - b.time);
+      // Sorting the leaderboards
+      leaderboard2048Data.sort((a, b) => b.score - a.score);  // Sort 2048 scores descending
+      leaderboardMemoriData.sort((a, b) => a.time - b.time);  // Sort Memori scores ascending
 
       console.log('2048 Leaderboard:', leaderboard2048Data);
       console.log('Memori Leaderboard:', leaderboardMemoriData);
@@ -78,16 +82,22 @@ const Leaderboard = () => {
       <View style={styles.podiumContainer}>
         <View style={styles.podium}>
           <View style={styles.thirdPlace}>
+            <Image source={{ uri: leaderboard[2].avatar_url }} style={styles.avatar} />
             <Text style={styles.podiumText}>3</Text>
-            <Text style={styles.podiumUser}>{leaderboard[2].email}</Text>
+            <Text style={styles.podiumUser}>{leaderboard[2].name}</Text>
+            <Text style={styles.podiumScore}>{selectedGame === '2048' ? `Score: ${leaderboard[2].score}` : `Time: ${leaderboard[2].time} seconds`}</Text>
           </View>
           <View style={styles.firstPlace}>
+            <Image source={{ uri: leaderboard[0].avatar_url }} style={styles.avatar} />
             <Text style={styles.podiumText}>1</Text>
-            <Text style={styles.podiumUser}>{leaderboard[0].email}</Text>
+            <Text style={styles.podiumUser}>{leaderboard[0].name}</Text>
+            <Text style={styles.podiumScore}>{selectedGame === '2048' ? `Score: ${leaderboard[0].score}` : `Time: ${leaderboard[0].time} seconds`}</Text>
           </View>
           <View style={styles.secondPlace}>
+            <Image source={{ uri: leaderboard[1].avatar_url }} style={styles.avatar} />
             <Text style={styles.podiumText}>2</Text>
-            <Text style={styles.podiumUser}>{leaderboard[1].email}</Text>
+            <Text style={styles.podiumUser}>{leaderboard[1].name}</Text>
+            <Text style={styles.podiumScore}>{selectedGame === '2048' ? `Score: ${leaderboard[1].score}` : `Time: ${leaderboard[1].time} seconds`}</Text>
           </View>
         </View>
       </View>
@@ -126,16 +136,17 @@ const Leaderboard = () => {
             {renderPodium(selectedGame === '2048' ? leaderboard2048 : leaderboardMemori)}
             <View style={styles.additionalBackground} />
             {(selectedGame === '2048' ? leaderboard2048 : leaderboardMemori).slice(3).map((item, index) => (
-              <View key={item.email} style={styles.leaderboardItemContainer}>
-                <Text style={styles.rank}>{index + 4}</Text>
-                <View style={styles.leaderboardItem}>
-                  <Text style={styles.email}>{item.email}</Text>
-                  <Text style={styles.score}>
-                    {selectedGame === '2048' ? `Score: ${item.score}` : `Time: ${item.time} seconds`}
-                  </Text>
-                </View>
-              </View>
-            ))}
+  <View key={item.name} style={styles.leaderboardItemContainer}>
+    <Text style={styles.rank}>{index + 4}</Text>
+    <View style={styles.leaderboardRectangle}>
+      <Image source={{ uri: item.avatar_url }} style={styles.avatarSmall} />
+      <Text style={styles.name}>{item.name}</Text>
+      <Text style={styles.score}>
+        {selectedGame === '2048' ? `Score: ${item.score}` : `Time: ${item.time} seconds`}
+      </Text>
+    </View>
+  </View>
+))}
           </ScrollView>
         </View>
       )}
@@ -152,7 +163,8 @@ const styles = StyleSheet.create({
   buttonContainer: {
     flexDirection: 'row', // Change to row to make buttons horizontal
     justifyContent: 'space-around',
-    marginBottom: 20,
+    marginBottom: 5,
+    marginTop: 45,
   },
   button: {
     backgroundColor: '#F4887C', // Unclicked button color
@@ -177,17 +189,26 @@ const styles = StyleSheet.create({
     alignItems: 'flex-end',
   },
   firstPlace: {
-    backgroundColor: '#FFD700',
-    marginTop: 120,
+    backgroundColor: '#E82561',
+    marginTop: 100,
     width: 100,
-    height: 200,
+    height: 210,
     justifyContent: 'center',
     alignItems: 'center',
     marginHorizontal: 10,
     borderRadius: 20,
   },
   secondPlace: {
-    backgroundColor: '#C0C0C0',
+    backgroundColor: '#F4887C',
+    width: 100,
+    height: 170,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginHorizontal: 10,
+    borderRadius: 20,
+  },
+  thirdPlace: {
+    backgroundColor: '#edc08a',
     width: 100,
     height: 150,
     justifyContent: 'center',
@@ -195,24 +216,39 @@ const styles = StyleSheet.create({
     marginHorizontal: 10,
     borderRadius: 20,
   },
-  thirdPlace: {
-    backgroundColor: '#CD7F32',
+  avatar: {
     width: 100,
-    height: 120,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginHorizontal: 10,
+    height: 100,
+    borderRadius: 50,
+    borderWidth: 3,
+    borderColor: 'white',
+    top: -50,
+  },
+  avatarSmall: {
+    width: 40,
+    height: 40,
     borderRadius: 20,
+    borderWidth: 2,
+    borderColor: 'white',
+    marginRight: 10,
   },
   podiumText: {
     fontSize: 24,
     fontWeight: 'bold',
     color: 'white',
+    top: -35,
   },
   podiumUser: {
     fontSize: 16,
     color: 'white',
     textAlign: 'center',
+    top:-35,
+  },
+  podiumScore: {
+    fontSize: 14,
+    color: 'white',
+    textAlign: 'center',
+    top: -35,
   },
   leaderboardBackgroundContainer: {
     position: 'relative',
@@ -227,47 +263,51 @@ const styles = StyleSheet.create({
   },
   additionalBackground: {
     position: 'absolute',
-    marginTop: '96%',
+    marginTop: '80%',
     width: '100%', // Cover 100% of the screen width
-    height: '100%',
+    height: '150%',
     backgroundColor: 'white',
     borderRadius: 30,
   },
   scrollViewContent: {
-    paddingTop: '15%', // Adjust padding to ensure content is not hidden behind the background
+    marginTop: '25%',
   },
+  leaderboardRectangle: {
+    width: "85%", // Da zauzme sav horizontalni prostor
+    backgroundColor: '#F8F8F8', // Svetla boja pozadine
+    borderRadius: 15, // Zaobljeni uglovi
+    padding: 15, // Unutrašnji razmak
+    elevation: 2, // Blaga senka (Android)
+    shadowColor: '#000', // Senka (iOS)
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    marginLeft: 10,
+    flexDirection: 'row', // Da ime, avatar i rezultat budu u redu
+    alignItems: 'center',
+  },
+
   leaderboardItemContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 10,
-  },
-  leaderboardItem: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    padding: 10,
-    borderBottomWidth: 1,
-    borderBottomColor: '#ccc',
-    borderRadius: 20, // Rounded shape for rank items
-    backgroundColor: '#F4887C', // Rank item color
-    left: 10,
+    marginVertical: 10,
   },
   rank: {
     fontSize: 16,
-    fontWeight: 'bold',
-    color: 'black',
-    marginRight: 10,
-    left: 10,
+    fontWeight: 'bold',  
+    paddingLeft: 15,  
   },
-  email: {
+  leaderboardItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  name: {
     fontSize: 16,
-    color: 'white',
-    width: width * 0.5, // Adjust width based on screen size
+    fontWeight: 'bold',
   },
   score: {
-    fontSize: 16,
-    color: 'white',
-    width: width * 0.25, // Adjust width based on screen size
+    fontSize: 14,
+    marginLeft: 10,
   },
 });
 

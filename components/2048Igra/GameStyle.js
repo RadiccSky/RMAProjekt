@@ -15,17 +15,17 @@ const GameStyle = ({ board, score, handleSwipe, initializeGame }) => {
   const getTileColor = (value) => {
     switch (value) {
       case 2: return '#EEE4DA';
-      case 4: return '#EDE0C8';
-      case 8: return '#F2B179';
-      case 16: return '#F59563';
-      case 32: return '#F67C5F';
-      case 64: return '#F65E3B';
-      case 128: return '#EDCF72';
+      case 4: return '#FFB8A9';
+      case 8: return '#FF6F61';
+      case 16: return '#F5D0A9';
+      case 32: return '#9B1C4B';
+      case 64: return '#FF3E6C';
+      case 128: return '#D53F4A ';
       case 256: return '#EDCC61';
       case 512: return '#EDC850';
       case 1024: return '#EDC53F';
       case 2048: return '#EDC22E';
-      default: return '#BBF99A';
+      default: return '#9B1C4B';
     }
   };
 
@@ -97,6 +97,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     width: '100%',
     height: '100%',
+    backgroundColor: '#F5E8D8',
   },
   Heading: {
     marginBottom: 5,
@@ -104,9 +105,16 @@ const styles = StyleSheet.create({
     padding: isMobile ? 10 : 20, // Dodatno povećaj razmak za web
   },
   title: {
-    fontSize: isMobile ? 30 * FONT_SCALE : 40 * FONT_SCALE, // Veći font za web
+    
+    marginBottom: 10,
+    color: '#F4887C',
     fontWeight: 'bold',
-    color: 'black',
+    textShadowColor: 'rgba(0, 0, 0, 0.75)',
+    textShadowOffset: { width: -1, height: 1 },
+    textShadowRadius: 2,
+    fontSize: isMobile ? 40 * FONT_SCALE : 40 * FONT_SCALE, // Veći font za web
+    fontWeight: 'bold',
+    
     textAlign: 'center',
   },
   board: {
@@ -121,6 +129,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center', // Centriranje pločica u redu
   },
   tile: {
+    left: 7,
     width: TILE_SIZE,
     height: TILE_SIZE,
     margin: 5,
@@ -136,7 +145,7 @@ const styles = StyleSheet.create({
   tileText: {
     fontSize: TILE_SIZE * 0.4, // Dinamičan font
     fontWeight: 'bold',
-    color: '#776E65',
+    color: '#9B1C4B',
   },
   score: {
     fontSize: 20 * FONT_SCALE,
@@ -148,7 +157,7 @@ const styles = StyleSheet.create({
   buttonContainer: {
     marginTop: 40,
     padding: 10,
-    backgroundColor: '#8e44ad',
+    backgroundColor: '#9B1C4B',
     borderRadius: 5,
     width: SCREEN_WIDTH * 0.8, // Manji gumb na mobilnim uređajima
     alignItems: 'center',

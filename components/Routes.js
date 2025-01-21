@@ -4,6 +4,7 @@ export const Routes = {
   RegistrationView: 'RegistrationView',
   MainView: 'MainView',
   MyProfile: 'MyProfile',
+  ProfilePic: "ProfilePic",
   MemoriGame: 'MemoriGame',
   Igra2048: 'Igra2048',
   Leaderboard: 'Leaderboard',
