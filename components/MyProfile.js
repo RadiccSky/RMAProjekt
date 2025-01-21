@@ -195,6 +195,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'white',
   },
   upperContainer: {
+    paddingTop: 50,
     flex: 1,
     justifyContent: 'space-between',
     alignItems: 'center',
@@ -252,7 +253,7 @@ const styles = StyleSheet.create({
     margin: 10,
     borderRadius: 20,
     flexDirection: 'column',
-    height: "25%",
+    height: "15%",
     alignItems: 'center',
   },
   gameRow: {
