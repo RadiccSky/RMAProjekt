@@ -6,6 +6,7 @@ import MainView from "./components/MainView";
 import { Routes } from "./components/Routes";
 import { AuthContext } from "./AuthContext";
 import MyProfile from "./components/MyProfile";
+import ProfilePic from "./components/ProfilePic";
 import MemoriGame from "./components/Memori/Memori";
 import GameScreen from "./components/2048Igra/GameScreen";
 import LeaderBoard from "./components/Leaderboard";
@@ -54,6 +55,7 @@ export default function Navigation() {
           {/* Screens for logged-in users */}
           <Stack.Screen name={Routes.MainView} component={MainView} />
           <Stack.Screen name={Routes.MyProfile} component={MyProfile} />
+          <Stack.Screen name={Routes.ProfilePic} component={ProfilePic} />
           <Stack.Screen name={Routes.MemoriGame} component={MemoriGame} />
           <Stack.Screen name={Routes.Igra2048} component={GameScreen} />
           <Stack.Screen name={Routes.Leaderboard} component={LeaderBoard} />

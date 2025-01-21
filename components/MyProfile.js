@@ -100,11 +100,15 @@ export default function MyProfile() {
     try {
       const { data } = await supabase.auth.getUser();
       const user = data?.user;
+      console.log('User object:', user);  // Dodajemo logiranje korisnika
+      console.log('Auth UID:', user?.id);
+      
       if (user) {
         await supabase
           .from('users')
           .update({ name: updatedName })
           .eq('user_id', user.id);
+        console.log('Update successful:', data);
         setName(updatedName); 
         console.log('Name updated!');
       }
@@ -122,7 +126,7 @@ export default function MyProfile() {
       <View style={styles.upperContainer}>
         <Text style={styles.heading}>Korisnički Profil</Text>
         <ThemeToggle />  
-      </View>
+      
 
       <View style={styles.lowerContainer}>
         <View style={styles.profileCircle}>
@@ -136,22 +140,19 @@ export default function MyProfile() {
             style={styles.iconContainer}
             onPress={handleEditAvatar}
           >
-            <MaterialIcons name="photo-camera" size={30} color="grey" />
+            <MaterialIcons name="photo-camera" size={30} color="grey"  />
           </TouchableOpacity>
         </View>
 
         {loading ? (
           <Text>Učitavanje...</Text> 
         ) : (
-          <>
+          
             <NameWithEdit
               initialName={name || 'No name available'}
               onNameUpdate={handleNameUpdate}
             />
-            <View style={styles.nameContainer}>
-              <Text style={styles.nameText}>{name}</Text>
-            </View>
-          </>
+          
         )}
 
         <View style={styles.gameInfoContainer}>
@@ -169,7 +170,7 @@ export default function MyProfile() {
           <View style={styles.gameRow}>
             <Text style={styles.gameItem}>Memori</Text>
             <Text style={[styles.gameItem, styles.withBorder]}>
-              {memoriTimeScore !== null ? `Vrijeme: ${memoriTimeScore} sekundi` : 'Nema postavljenih vremena.'}
+              {memoriTimeScore !== null ? `Vrijeme: ${memoriTimeScore}s` : 'Nema postavljenih vremena.'}
             </Text>
             <Text style={styles.gameItem}>Leaderboard</Text>
           </View>
@@ -178,11 +179,12 @@ export default function MyProfile() {
 
         <View style={styles.logoutContainer}>
           <TouchableOpacity style={styles.logoutButton} onPress={logout}>
-            <Ionicons name="log-out-outline" size={20} color="red" style={styles.icon} />
+            <Ionicons name="log-out-outline" size={20} color="#c60606" style={styles.icon} />
             <Text style={styles.logoutButtonText}>Odjava</Text>
           </TouchableOpacity>
         </View>
       </View>
+    </View>
     </View>
   );
 }
@@ -196,7 +198,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'space-between',
     alignItems: 'center',
-    backgroundColor: 'lightblue',
+    backgroundColor: '#f7aaa1',
     padding: 10,
     position: 'relative',
     zIndex: 1,
@@ -204,7 +206,7 @@ const styles = StyleSheet.create({
   lowerContainer: {
     height: '80%',
     width: '100%',
-    backgroundColor: '#ffffff',
+    backgroundColor: '#f8f0e7',
     padding: 20,
     justifyContent: 'flex-start',
     zIndex: 2,
@@ -237,25 +239,15 @@ const styles = StyleSheet.create({
     backgroundColor: 'white',
     borderRadius: 20,
     padding: 10,
-    elevation: 5,
+    elevation: 10,
   },
   heading: {
     fontSize: 24,
     fontWeight: 'bold',
     marginTop: 10,
   },
-  nameContainer: {
-    backgroundColor: 'gray',
-    padding: 10,
-    borderRadius: 5,
-    marginTop: 10,
-  },
-  nameText: {
-    fontSize: 18,
-    color: 'white',
-  },
   gameInfoContainer: {
-    backgroundColor: "yellow",
+    backgroundColor: "#c30e59",
     width: '100%',
     margin: 10,
     borderRadius: 20,
@@ -275,6 +267,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginVertical: 5,
     textAlign: 'center',
+    color: 'white',
   },
   withBorder: {
     borderRightWidth: 2,
@@ -291,17 +284,18 @@ const styles = StyleSheet.create({
   logoutButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'white',
+    backgroundColor: '#f8f0e7',
     borderWidth: 1,
-    borderColor: 'red',
+    borderColor: '#c60606',
     paddingVertical: 15,
     paddingHorizontal: 20,
     borderRadius: 5,
     width: '90%',
     justifyContent: 'center',
+    elevation:10,
   },
   logoutButtonText: {
-    color: 'red',
+    color: '#c60606',
     fontSize: 16,
     fontWeight: 'bold',
     marginLeft: 10,

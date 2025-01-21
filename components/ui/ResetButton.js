@@ -17,7 +17,7 @@ const ResetButton = ({ onReset = () => {}, buttonText = 'Resetiraj bodove' }) =>
   return (
     <>
       <TouchableOpacity style={styles.resetButton} onPress={showModal}>
-        <Ionicons name="trash-outline" size={20} color="red" style={styles.resetIcon} />
+        <Ionicons name="trash-outline" size={20} color="#c60606" style={styles.resetIcon} />
         <Text style={styles.resetButtonText}>{buttonText}</Text>
       </TouchableOpacity>
 
@@ -33,11 +33,11 @@ const ResetButton = ({ onReset = () => {}, buttonText = 'Resetiraj bodove' }) =>
             <Text style={styles.modalContent}>Jeste li sigurni da želite izbrisati svoje bodove?</Text>
 
             <View style={styles.modalActions}>
-              <TouchableOpacity style={styles.modalButton} onPress={hideModal}>
+              <TouchableOpacity style={styles.cancelButton} onPress={hideModal}>
                 <Text style={styles.modalButtonText}>Odustani</Text>
               </TouchableOpacity>
-              <TouchableOpacity style={styles.modalButton} onPress={handlePress}>
-                <Text style={styles.modalButtonText}>Potvrdi</Text>
+              <TouchableOpacity style={styles.confirmButton} onPress={handlePress}>
+                <Text style={[styles.modalButtonText, { color: '#c60606' }]}>Potvrdi</Text> {/* Crveni tekst */}
               </TouchableOpacity>
             </View>
           </View>
@@ -51,21 +51,21 @@ const styles = StyleSheet.create({
   resetButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'white',
+    backgroundColor: '#fbcbd4',
     borderWidth: 1,
-    borderColor: 'red',
     paddingHorizontal: 20,
     paddingVertical: 10,
     borderRadius: 5,
     width: '90%',
     justifyContent: 'center',
     marginTop: 10,
+    elevation: 10,
   },
   resetIcon: {
     marginRight: 10,
   },
   resetButtonText: {
-    color: 'red',
+    color: '#c60606',
     fontSize: 16,
     fontWeight: 'bold',
   },
@@ -96,17 +96,26 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     width: '100%',
   },
-  modalButton: {
+  cancelButton: {
     padding: 10,
-    backgroundColor: 'red',
+    backgroundColor: 'red', // Red for cancel button
     borderRadius: 5,
     width: '40%',
     alignItems: 'center',
   },
+  confirmButton: {
+    padding: 10,
+    backgroundColor: 'white', // White for confirm button
+    borderRadius: 5,
+    width: '40%',
+    borderWidth: 1,
+    borderColor: '#c60606', // Optional border for confirm button
+    alignItems: 'center',
+  },
   modalButtonText: {
-    color: 'white',
     fontWeight: 'bold',
   },
 });
 
 export default ResetButton;
+

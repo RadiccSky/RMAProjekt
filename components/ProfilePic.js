@@ -169,7 +169,7 @@ const ProfilePic = () => {
   const styles = StyleSheet.create({
     container: {
       flex: 1,
-      backgroundColor: 'white',
+      backgroundColor: '#f8f0e7',
       padding: 20,
       alignItems: 'center',
     },
@@ -187,8 +187,8 @@ const ProfilePic = () => {
       width: 150,
       height: 150,
       borderRadius: 75,
-      borderWidth: 3,
-      borderColor: 'lightblue',
+      borderWidth: 4,
+      borderColor: '#e82561',
     },
     availablePicsContainer: {
       flexDirection: 'row',
