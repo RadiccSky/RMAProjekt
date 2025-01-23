@@ -52,7 +52,7 @@ export default function Navigation() {
         </>
       ) : (
         <>
-          {/* Screens for logged-in users */}
+         
           <Stack.Screen name={Routes.MainView} component={MainView} />
           <Stack.Screen name={Routes.MyProfile} component={MyProfile} />
           <Stack.Screen name={Routes.ProfilePic} component={ProfilePic} />
