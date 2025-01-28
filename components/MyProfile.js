@@ -8,7 +8,6 @@ import ResetButton from './ui/ResetButton';
 import ThemeToggle from './ui/ThemeToggle';
 import NameWithEdit from './ui/NameWithEdit';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
-import Background from './Background';
 
 export default function MyProfile() {
   const [highestScore, setHighestScore] = useState(null); 
@@ -123,8 +122,6 @@ export default function MyProfile() {
   };
 
   return (
-
-    <Background>
     <View style={styles.container}>
       <View style={styles.upperContainer}>
         <Text style={styles.heading}>Korisnički Profil</Text>
@@ -189,31 +186,27 @@ export default function MyProfile() {
       </View>
     </View>
     </View>
-  </Background>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    alignItems:'center',
-    justifyContent:'center',
-    
-    
+    backgroundColor: 'white',
   },
   upperContainer: {
     paddingTop: 50,
     flex: 1,
     justifyContent: 'space-between',
     alignItems: 'center',
-    
+    backgroundColor: '#f7aaa1',
     padding: 10,
     position: 'relative',
     zIndex: 1,
   },
   lowerContainer: {
     height: '80%',
-    width: '125%',
+    width: '100%',
     backgroundColor: '#f8f0e7',
     padding: 20,
     justifyContent: 'flex-start',
