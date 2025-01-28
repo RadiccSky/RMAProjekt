@@ -53,12 +53,45 @@ export default function Navigation() {
       ) : (
         <>
          
-         <Stack.Screen name={Routes.MainView} component={MainView} />
-          <Stack.Screen name={Routes.MyProfile} component={MyProfile} />
-          <Stack.Screen name={Routes.ProfilePic} component={ProfilePic} />
-          <Stack.Screen name={Routes.MemoriGame} component={MemoriGame} />
-          <Stack.Screen name={Routes.Igra2048} component={GameScreen} />
-          <Stack.Screen name={Routes.Leaderboard} component={LeaderBoard} />
+                 {/* MainView and ProfilePic will not have BackButton */}
+                 <Stack.Screen name={Routes.MainView} component={MainView} />
+
+<Stack.Screen name={Routes.ProfilePic} component={ProfilePic} />
+
+
+          {/* Add BackButton to all other screens */}
+          <Stack.Screen name={Routes.MyProfile}>
+            {() => (
+              <>
+                <MyProfile />
+                <BackButton />
+              </>
+            )}
+          </Stack.Screen>
+          <Stack.Screen name={Routes.MemoriGame}>
+            {() => (
+              <>
+                <MemoriGame />
+                <BackButton />
+              </>
+            )}
+          </Stack.Screen>
+          <Stack.Screen name={Routes.Igra2048}>
+            {() => (
+              <>
+                <GameScreen />
+                <BackButton />
+              </>
+            )}
+          </Stack.Screen>
+          <Stack.Screen name={Routes.Leaderboard}>
+            {() => (
+              <>
+                <LeaderBoard />
+                <BackButton />
+              </>
+            )}
+          </Stack.Screen>
         </>
       )}
     </Stack.Navigator>
