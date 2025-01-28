@@ -57,15 +57,16 @@ const styles = StyleSheet.create({
     paddingTop:100,
   },
 
-  mainText:{
-
-    fontSize:60,
-    color:"white",
-fontStyle:"italic",
-fontWeight:"bold",
-
-
+  mainText: {
+    fontSize: 60,
+    color: "white",
+    fontStyle: "italic",
+    fontWeight: "bold",
+    textShadowColor: "rgba(0, 0, 0, 0.75)", // Boja sjene
+    textShadowOffset: { width: 2, height: 2 }, // Pomak sjene
+    textShadowRadius: 9, // Intenzitet zamućenja sjene
   },
+  
 
   
   

@@ -217,7 +217,7 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems:'center',
     justifyContent:'center',
-    
+    width: '90%',
     
   },
   upperContainer: {
@@ -225,14 +225,14 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'space-between',
     alignItems: 'center',
-    
+    widt: '90%',
     padding: 10,
     position: 'relative',
     zIndex: 1,
   },
   lowerContainer: {
     height: '80%',
-    width: '125%',
+    width: '119%',
     backgroundColor: '#f8f0e7',
     padding: 20,
     justifyContent: 'flex-start',
@@ -272,16 +272,23 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: 'bold',
     marginTop: 10,
+    
   },
   gameInfoContainer: {
     backgroundColor: "#c30e59",
-    width: '100%',
+    width: '90%',
     margin: 10,
     borderRadius: 20,
     flexDirection: 'column',
     height: "15%",
     alignItems: 'center',
+    shadowColor: "#000", // Boja sjene
+    shadowOffset: { width: 0, height: 2 }, // Pomak sjene
+    shadowOpacity: 0.25, // Prozirnost sjene
+    shadowRadius: 4, // Intenzitet zamućenja sjene
+    elevation: 5, // Sjenu na Androidu
   },
+  
   gameRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -305,7 +312,7 @@ const styles = StyleSheet.create({
   logoutContainer: {
     marginTop: 10,
     alignItems: 'center',
-    width: '100%',
+    width: '40%',
     height: "20%",
   },
   logoutButton: {

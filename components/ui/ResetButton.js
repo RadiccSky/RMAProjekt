@@ -65,17 +65,17 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     borderRadius: 5,
     width: '90%',
-    justifyContent: 'center',
     marginTop: 10,
     elevation: 10,
   },
   resetIcon: {
-    marginRight: 10,
+    marginRight: 10, // Ovo zadržavamo kako bi ikona i tekst imali malo razmaka
   },
   resetButtonText: {
     color: '#c60606',
     fontSize: 16,
     fontWeight: 'bold',
+    
   },
   modalOverlay: {
     flex: 1,

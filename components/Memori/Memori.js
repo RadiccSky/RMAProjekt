@@ -244,7 +244,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'white',
   },
   cardIcon: {
-    color: 'blue',
+    color: '#db0f4d',
   },
   winMessage: {
     position: 'absolute',
