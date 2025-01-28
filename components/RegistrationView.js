@@ -1,13 +1,11 @@
 import React, { useState, useContext } from "react";
-import { View, StyleSheet, Text, ImageBackground, Dimensions } from "react-native";
+import { View, StyleSheet, Text } from "react-native";
 import { supabase } from "../SupabaseClient";
 import { AuthContext } from "../AuthContext";
 import LoginInput from "./ui/LoginInput";
 import LoginButton from "./ui/LoginButton";
 import ErrorMessage from "./ui/ErrorMessage";
 import CoinyText from "./ui/CoinyText";
-
-const { width, height } = Dimensions.get('window');
 
 export default function RegistrationView({ onNavigateToLogin, onRegistrationSuccess }) {
   const { login } = useContext(AuthContext);
@@ -95,13 +93,6 @@ export default function RegistrationView({ onNavigateToLogin, onRegistrationSucc
   };
 
   return (
-    <ImageBackground
-        source={require("../assets/pozadina4.png")} 
-        style={[styles.background, { width, height }]}  
-          resizeMode="cover"  
-      >
-    
-        <View style = {styles.overlay} />
     <View style={styles.container}>
       <CoinyText style={{ fontSize: 40, color: "#E82561", marginBottom: 20 }}>
         Registracija
@@ -137,21 +128,10 @@ export default function RegistrationView({ onNavigateToLogin, onRegistrationSucc
         Već imate račun? Prijavite se!
       </Text>
     </View>
-    </ImageBackground>
   );
 }
 
 const styles = StyleSheet.create({
-
-  background: {
-    flex: 1,
-    
-    
-  },
-  overlay: {
-    ...StyleSheet.absoluteFillObject,  
-    backgroundColor: "rgba(255, 255, 255, 0.6)",  
-  },
   container: {
     flex: 1,
     justifyContent: "center",
