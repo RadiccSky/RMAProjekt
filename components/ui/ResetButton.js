@@ -5,12 +5,19 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 const ResetButton = ({ onReset = () => {}, buttonText = 'Resetiraj bodove' }) => {
   const [visible, setVisible] = useState(false);
 
-  const showModal = () => setVisible(true);
-  const hideModal = () => setVisible(false);
+  const showModal = () => {
+    console.log('Modal shown'); // Kada se modal prikaže
+    setVisible(true);
+  };
+
+  const hideModal = () => {
+    console.log('Modal hidden'); // Kada se modal zatvori
+    setVisible(false);
+  };
 
   const handlePress = () => {
-    // Call the onReset function and hide the modal
-    onReset();
+    console.log('Reset button pressed'); // Kada klikneš na "Potvrdi" u modalu
+    onReset(); // Poziva funkciju za resetiranje bodova
     hideModal();
   };
 
@@ -25,7 +32,7 @@ const ResetButton = ({ onReset = () => {}, buttonText = 'Resetiraj bodove' }) =>
         visible={visible}
         transparent={true} // To make the background semi-transparent
         animationType="fade"
-        onRequestClose={hideModal} // Optionally handle back button press
+        onRequestClose={hideModal}
       >
         <View style={styles.modalOverlay}>
           <View style={styles.modalContainer}>
@@ -33,11 +40,12 @@ const ResetButton = ({ onReset = () => {}, buttonText = 'Resetiraj bodove' }) =>
             <Text style={styles.modalContent}>Jeste li sigurni da želite izbrisati svoje bodove?</Text>
 
             <View style={styles.modalActions}>
+              {/* Osigurajte da su svi tekstualni čvorovi unutar Text komponenti */}
               <TouchableOpacity style={styles.cancelButton} onPress={hideModal}>
                 <Text style={styles.modalButtonText}>Odustani</Text>
               </TouchableOpacity>
               <TouchableOpacity style={styles.confirmButton} onPress={handlePress}>
-                <Text style={[styles.modalButtonText, { color: '#c60606' }]}>Potvrdi</Text> {/* Crveni tekst */}
+                <Text style={[styles.modalButtonText, { color: '#c60606' }]}>Potvrdi</Text>
               </TouchableOpacity>
             </View>
           </View>

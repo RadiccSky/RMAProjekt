@@ -31,6 +31,7 @@ export const AuthProvider = ({ children }) => {
           console.log("Sesija pronađena, postavljanje korisnika.");
           setIsLoggedIn(true);
           setUser(session.user);
+          await setCurrentUserId(session.user.id);
         } else {
           console.log("Sesija nije pronađena, provjera AsyncStorage...");
           const rememberedEmail = await AsyncStorage.getItem("rememberedEmail");
@@ -52,6 +53,7 @@ export const AuthProvider = ({ children }) => {
             console.log("Automatska prijava uspješna:", data.user);
             setIsLoggedIn(true);
             setUser(data.user);
+            await setCurrentUserId(data.user.id); 
           } else {
             console.log("Nema pohranjenih vjerodajnica.");
             setIsLoggedIn(false);
@@ -67,6 +69,18 @@ export const AuthProvider = ({ children }) => {
 
     checkUserSession();
   }, []);
+
+  const setCurrentUserId = async (userId) => {
+    try {
+      // Postavi korisnički ID u sesiji
+      const { error } = await supabase.rpc('set_current_user_id', { user_id: userId });
+      if (error) {
+        console.error("Greška prilikom postavljanja korisničkog ID-a:", error.message);
+      }
+    } catch (error) {
+      console.error("Greška prilikom dohvaćanja korisničkog ID-a:", error.message);
+    }
+  };
 
   const login = async (email, passw, rememberMe) => {
     try {
@@ -89,6 +103,7 @@ export const AuthProvider = ({ children }) => {
       console.log("Prijava uspješna:", data.user);
       setIsLoggedIn(true);
       setUser(data.user);
+      await setCurrentUserId(data.user.id); 
 
       if (rememberMe) {
         console.log("Pohranjivanje vjerodajnica u AsyncStorage.");
