@@ -72,10 +72,13 @@ export default function Navigation() {
         </>
       ) : (
         <>
+
           {/* MainView and ProfilePic will not have BackButton */}
           <Stack.Screen name={Routes.MainView} component={MainView} />
 <Stack.Screen name={Routes.MyProfile} component={MyProfile} />
-<Stack.Screen name={Routes.ProfilePic} component={ProfilePic} />
+
+         
+                
 
 
           {/* Add BackButton to all other screens */}
