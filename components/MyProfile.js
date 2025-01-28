@@ -5,7 +5,6 @@ import { AuthContext } from "../AuthContext";
 import { useNavigation } from '@react-navigation/native'; 
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import ResetButton from './ui/ResetButton';
-import ThemeToggle from './ui/ThemeToggle';
 import NameWithEdit from './ui/NameWithEdit';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 
@@ -34,6 +33,7 @@ export default function MyProfile() {
       }
   
       try {
+        // Dohvaćanje podataka o rezultatima igre
         const { data: scoreData, error: scoreError } = await supabase
           .from('game_scores')
           .select('score_2048, score_memori')
@@ -53,6 +53,7 @@ export default function MyProfile() {
           setMemoriTimeScore(scoreData[0].score_memori || 0);
         }
   
+        // Dohvaćanje podataka o korisničkom profilu (avatar i ime)
         const { data: profileData, error: profileError } = await supabase
           .from('users')
           .select('avatar_url, name')
@@ -63,9 +64,27 @@ export default function MyProfile() {
           console.error('Error fetching profile image:', profileError.message);
         } else {
           console.log('Profile data:', profileData);
-          // Provjeri je li avatar_url prazan, ako jest, postavi zadanu sliku
-          const defaultAvatarUrl = 'https://ajbjhjntennljthfdhqz.supabase.co/storage/v1/object/public/avatars/DrawKit%20Vector%20Illustration%20Animal%20&%20Pets%20(2).jpg'; // zamijeni s URL-om tvoje zadane slike
-          setImageUrl(profileData?.avatar_url || defaultAvatarUrl); 
+          
+          // Provjera je li avatar_url prazan i ako je, postavljanje zadane slike u Supabase
+          
+  
+          if (!profileData?.avatar_url) {
+            const defaultAvatarUrl = 'https://ajbjhjntennljthfdhqz.supabase.co/storage/v1/object/public/avatars/DrawKit%20Vector%20Illustration%20Animal%20&%20Pets%20(2).jpg'; 
+            // Ako avatar_url nije postavljen, postaviti zadanu sliku u bazu
+            const { error: updateError } = await supabase
+              .from('users')
+              .update({ avatar_url: defaultAvatarUrl })
+              .eq('user_id', user.id);
+  
+            if (updateError) {
+              console.error('Error updating avatar URL:', updateError.message);
+            } else {
+              console.log('Default avatar URL set for user');
+            }
+          }
+  
+          // Postavljanje slike i imena na temelju podataka
+          setImageUrl(profileData?.avatar_url); 
           setName(profileData?.name || 'No name available');
         }
       } catch (error) {
@@ -77,6 +96,7 @@ export default function MyProfile() {
   
     fetchUserData();
   }, []);
+  
   
   const resetScores = async () => {
     try {
@@ -125,7 +145,6 @@ export default function MyProfile() {
     <View style={styles.container}>
       <View style={styles.upperContainer}>
         <Text style={styles.heading}>Korisnički Profil</Text>
-        <ThemeToggle />  
       
 
       <View style={styles.lowerContainer}>
