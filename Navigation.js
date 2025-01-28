@@ -53,7 +53,7 @@ export default function Navigation() {
       ) : (
         <>
          
-          <Stack.Screen name={Routes.MainView} component={MainView} />
+         <Stack.Screen name={Routes.MainView} component={MainView} />
           <Stack.Screen name={Routes.MyProfile} component={MyProfile} />
           <Stack.Screen name={Routes.ProfilePic} component={ProfilePic} />
           <Stack.Screen name={Routes.MemoriGame} component={MemoriGame} />

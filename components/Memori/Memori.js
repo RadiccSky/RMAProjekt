@@ -6,6 +6,7 @@ import {
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { supabase } from '../../SupabaseClient';
 import { AuthContext } from '../../AuthContext'; 
+import BackgroundGames from '../BackgroundGames';
 
 const randomArrFunction = (arr) => {
   for (let i = arr.length - 1; i > 0; i--) {
@@ -140,6 +141,7 @@ const Memori = () => {
       const msg = `Parovi: ${matches} / ${cards.length / 2}`;
       const formattedTime = `${Math.floor(timer / 60)}:${timer % 60 < 10 ? '0' + timer % 60 : timer % 60}`;
   return (
+    <BackgroundGames>
     <View style={styles.container}>
       <Text style={styles.header1}>Memori</Text>
       
@@ -185,6 +187,7 @@ const Memori = () => {
         </View>
       )}
     </View>
+    </BackgroundGames>
   );
 };
 
@@ -193,7 +196,7 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#F5E8D8',
+    
   },
   header1: {
     fontSize: 48,
