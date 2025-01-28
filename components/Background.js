@@ -29,7 +29,7 @@ const styles = StyleSheet.create({
   },
   overlay: {
     ...StyleSheet.absoluteFillObject, // Puni ekran
-    backgroundColor: 'rgba(245, 245, 220, 0.6)',  // Bijela boja s prozirnošću
+    backgroundColor: 'rgba(245, 245, 220, 0.7)',  // Bijela boja s prozirnošću
   },
 });
 
