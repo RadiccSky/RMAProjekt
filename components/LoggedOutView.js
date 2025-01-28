@@ -1,5 +1,5 @@
 import React, { useState, useContext, useEffect } from "react";
-import { View, Text, StyleSheet } from "react-native";
+import { View, Text, StyleSheet,ImageBackground, Dimensions } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import LoginInput from "./ui/LoginInput";
 import LoginButton from "./ui/LoginButton";
@@ -9,6 +9,8 @@ import CoinyText from "./ui/CoinyText";
 import PasswordInput from "./ui/PasswordInput";
 import RememberMe from "./ui/RememberMe";
 import ErrorMessage from "./ui/ErrorMessage";
+
+const { width, height } = Dimensions.get('window');
 
 export default function LoggedOutView({ onNavigateToRegister, onLoginSuccess }) {
   const { login } = useContext(AuthContext);
@@ -70,6 +72,13 @@ export default function LoggedOutView({ onNavigateToRegister, onLoginSuccess }) 
   };
 
   return (
+    <ImageBackground
+    source={require("../assets/pozadina4.png")} 
+    style={[styles.background, { width, height }]}  
+      resizeMode="cover"  
+  >
+
+    <View style = {styles.overlay} />
     <View style={styles.container}>
       <CoinyText style={{ fontSize: 40, color: "#E82561", marginBottom: 20 }}>Prijava</CoinyText>
       
@@ -96,10 +105,19 @@ export default function LoggedOutView({ onNavigateToRegister, onLoginSuccess }) 
         Nemate račun? Registrirajte se!
       </Text>
     </View>
+    </ImageBackground>
   );
 }
 
 const styles = StyleSheet.create({
+  background: {
+    flex: 1,
+    
+  },
+  overlay: {
+    ...StyleSheet.absoluteFillObject,  
+    backgroundColor: "rgba(255, 255, 255, 0.6)",  
+  },
   container: {
     flex: 1,
     justifyContent: "center",
