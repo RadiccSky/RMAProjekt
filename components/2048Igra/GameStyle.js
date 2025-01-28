@@ -97,7 +97,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     width: '100%',
     height: '100%',
-    
+    backgroundColor: '#F5E8D8',
   },
   Heading: {
     marginBottom: 5,

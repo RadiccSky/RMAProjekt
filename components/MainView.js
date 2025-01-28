@@ -1,17 +1,29 @@
 import React from "react";
 import { View, TouchableOpacity, Text, StyleSheet, Dimensions, ImageBackground } from "react-native";
-import Background from "./Background";
+import { LinearGradient } from 'expo-linear-gradient';
 import { Routes } from "./Routes";
 
 const { width, height } = Dimensions.get('window'); 
 
 export default function MainView({ navigation }) {
   return (
-    
-    <Background>
+    <ImageBackground 
+      source={{uri: 'https://img.freepik.com/free-vector/beautiful-autumn-illustration-landscape_23-2149075029.jpg'}}
+      style={styles.backgroundImage}
+      resizeMode="cover" 
+    >
       
-      <Text style={styles.mainText}>Dobrodošli</Text>
-    
+      <View style={styles.overlay} />
+      
+      
+      <LinearGradient
+        colors={['#f5e8db', '#e6c3a1', '#d1a87d']}
+        style={styles.gradientBackground}
+      >
+
+
+
+       
         <View style={styles.circle}>
           <TouchableOpacity 
             style={[styles.section, styles.leftTop]} 
@@ -41,8 +53,8 @@ export default function MainView({ navigation }) {
             <Text style={styles.sectionText}>My Profile</Text>
           </TouchableOpacity>
         </View>
-      
-    </Background>
+      </LinearGradient>
+    </ImageBackground>
   );
 }
 
@@ -52,22 +64,39 @@ const sectionSize = circleSize * 0.42;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: "flex-start",
+    justifyContent: "center",
     alignItems: "center",
-    paddingTop:100,
-  },
-
-  mainText:{
-
-    fontSize:60,
-    color:"white",
-fontStyle:"italic",
-fontWeight:"bold",
-
-
   },
 
   
+  backgroundImage: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    flex: 1,
+    justifyContent: 'center',
+    opacity: 2.0,
+  },
+
+  
+  overlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: 'rgba(0, 0, 0, 0.3)', 
+  },
+
+ 
+  gradientBackground: {
+    flex: 1,
+    width: '100%',
+    height: '100%',
+    justifyContent: 'center',
+    alignItems: 'center',
+    position: 'relative',
+    
+  },
+
   
   circle: {
     width: circleSize,
@@ -86,7 +115,6 @@ fontWeight:"bold",
     shadowOpacity: 0.3,
     shadowRadius: 10,
     elevation: 10, 
-    transform: [{ translateY: 60 }],
   },
 
   section: {
@@ -97,7 +125,7 @@ fontWeight:"bold",
     borderRadius: 50,
     overflow: 'hidden',
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
+    shadowOffset: { width: 0, height: 5 },
     shadowOpacity: 0.3,
     shadowRadius: 5,
     elevation: 5,
@@ -114,7 +142,7 @@ fontWeight:"bold",
   },
 
   leftTop: {
-    backgroundColor: 'rgba(195, 14, 89, 0.4)',
+    backgroundColor: 'rgba(195, 14, 89, 0.5)',
     borderTopRightRadius: sectionSize * 0.2,
     borderTopLeftRadius: sectionSize * 1.2,
     borderBottomLeftRadius: sectionSize * 0.2,
@@ -122,7 +150,7 @@ fontWeight:"bold",
   },
 
   rightTop: {
-    backgroundColor: 'rgba(133, 61, 114, 0.5)',
+    backgroundColor: 'rgba(133, 61, 114, 0.6)',
     borderTopRightRadius: sectionSize * 1.2,
     borderTopLeftRadius: sectionSize * 0.2,
     borderBottomLeftRadius: sectionSize * 0.05,
@@ -130,7 +158,7 @@ fontWeight:"bold",
   },
 
   leftBottom: {
-    backgroundColor: 'rgba(244, 136, 124, 0.4)',
+    backgroundColor: 'rgba(244, 136, 124, 0.6)',
     borderTopRightRadius: sectionSize * 0.05,
     borderTopLeftRadius: sectionSize * 0.2,
     borderBottomLeftRadius: sectionSize * 1.2,

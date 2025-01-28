@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, ScrollView, Dimensions, Image } from 'react-native';
 import { supabase } from '../SupabaseClient'; // Ensure SupabaseClient is correctly set up
-import Background from './Background';
 
 const { width } = Dimensions.get('window');
 
@@ -106,8 +105,6 @@ const Leaderboard = () => {
   };
 
   return (
-
-    <Background>
     <View style={styles.container}>
       <View style={styles.buttonContainer}>
         <TouchableOpacity
@@ -129,7 +126,6 @@ const Leaderboard = () => {
           <Text style={styles.buttonText}>Memori</Text>
         </TouchableOpacity>
       </View>
-    
 
       {loading ? (
         <Text>Loading...</Text>
@@ -155,7 +151,6 @@ const Leaderboard = () => {
         </View>
       )}
     </View>
-    </Background>
   );
 };
 
@@ -163,7 +158,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 20,
-    
+    backgroundColor: '#F5E8D8', // Body color
   },
   buttonContainer: {
     flexDirection: 'row', // Change to row to make buttons horizontal
